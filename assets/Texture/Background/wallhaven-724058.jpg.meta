@@ -1,0 +1,31 @@
+{
+  "ver": "2.2.0",
+  "uuid": "f324ebe7-79d7-4194-b493-dde401b72f1d",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "subMetas": {
+    "wallhaven-724058": {
+      "ver": "1.0.3",
+      "uuid": "31bb80d8-3bf7-4c9e-897a-f087a0a62a1f",
+      "rawTextureUuid": "f324ebe7-79d7-4194-b493-dde401b72f1d",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 0,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 9427,
+      "height": 5016,
+      "rawWidth": 9427,
+      "rawHeight": 5016,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

@@ -8,6 +8,7 @@
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] https://www.cocos2d-x.org/docs/creator/manual/en/scripting/life-cycle-callbacks.html
 
+//该类控制的节点接受用户的控制输入，包括鼠标和触摸
 cc.Class({
     extends: cc.Component,
 

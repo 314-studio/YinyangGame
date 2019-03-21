@@ -33,10 +33,10 @@ cc.Class({
 
     update (dt) {
         this.drawDebugInfo();
-        var x = this.node.getPosition().x;
-        x += dt * this.combinedForce;
-        this.node.setPosition(x, this.node.getPosition().y);
-        //this.debugUpdate(dt);
+        // var x = this.node.getPosition().x;
+        // x += dt * this.combinedForce;
+        // this.node.setPosition(x, this.node.getPosition().y);
+        this.debugUpdate(dt);
         // var ctx = this.getComponent(cc.Graphics);
         // ctx.clear();
         // ctx.moveTo(0, 0);
@@ -65,12 +65,11 @@ cc.Class({
         ctx.stroke();
     },
 
-    applyYinyangForce (force) {
-        if (force > 0) {
-            this.yinForce = force;
-        } else {
-            this.yangForce = force;
-        }
-        this.combinedForce = this.yangForce + this.yinForce;
+    applyYinForce (force) {
+        this.yinForce = force;
+    },
+
+    applyYangForce (force) {
+        this.yangForce = force;
     }
 });

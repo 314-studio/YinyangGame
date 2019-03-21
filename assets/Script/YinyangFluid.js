@@ -26,6 +26,8 @@ cc.Class({
             default: null,
             type: cc.Node
         },
+
+        inverseFuncConstance: 500,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -72,28 +74,20 @@ cc.Class({
             var jointScript = joint.getComponent("ChainJoint");
             var xOffset = joint.getPosition().x - eye.getPosition().x;
             var yOffset = joint.getPosition().y - eye.getPosition().y;
-            var offsetPow = Math.pow(xOffset, 2) + Math.pow(yOffset, 2);
+            var offset = Math.sqrt(Math.pow(xOffset, 2) + Math.pow(yOffset, 2));
 
-            var force = 0;
-            if (offsetPow >= Math.pow(this.radius, 2) + 2) {
+            var force = this.inverseFuncConstance - offset;
+
+            if (force < 0) {
                 force = 0;
-            } else {
-                var offsetAtan = Math.atan(yOffset / xOffset);
-                cc.log("距离的平方：", offsetPow);
-                force = this.forceCoef / Math.sqrt(offsetPow);
             }
 
             if (eye.getPosition().x > 0) {
-                force = -force
+                force = -force;
+                jointScript.applyYangForce(force);
+            } else {
+                jointScript.applyYinForce(force);
             }
-
-            // var force = this.xForceCoef * (Math.pow(this.radius, 2) - Math.pow(xOffset, 2)) - 
-            //     this.yForceCoef * Math.pow(yOffset, 2);
-            // if (eye.getPosition().x > 0) {
-            //     force = -force
-            // }
-            //var force = this.xForceCoef * xOffset + this.yForceCoef * yOffset;
-            jointScript.applyYinyangForce(force);
 
             cc.log("力的大小：", force);
         }

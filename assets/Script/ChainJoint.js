@@ -13,7 +13,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-
+        debug: true,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -28,20 +28,22 @@ cc.Class({
     },
 
     start () {
-        this.drawDebugInfo();
+        if (this.debug) {
+            this.drawDebugInfo();
+        }
     },
 
     update (dt) {
-        this.drawDebugInfo();
-        // var x = this.node.getPosition().x;
-        // x += dt * this.combinedForce;
-        // this.node.setPosition(x, this.node.getPosition().y);
-        this.debugUpdate(dt);
-        // var ctx = this.getComponent(cc.Graphics);
-        // ctx.clear();
-        // ctx.moveTo(0, 0);
-        // ctx.lineTo(this.combinedForce, 0);
-        // ctx.stroke();
+        if (this.debug) {
+            this.debugUpdate(dt);
+        }
+
+        this.combinedForce = this.yinForce + this.yangForce;
+
+        var x = this.node.getPosition().x;
+        x += this.combinedForce * dt * 5;
+        this.node.setPosition(x, this.node.getPosition().y);
+
     },
 
     drawDebugInfo () {
@@ -54,15 +56,27 @@ cc.Class({
         var ctx = this.getComponent(cc.Graphics);
         ctx.clear();
 
-        ctx.moveTo(0, 0);
-        ctx.strokeColor = cc.Color.BLACK;
-        ctx.lineTo(this.yinForce * this.forceDebugLineCoef, 0);
-        ctx.stroke();
+        this.drawDebugInfo();
+        // ctx.moveTo(0, 0);
+        // ctx.strokeColor = cc.Color.BLACK;
+        // ctx.lineTo(this.yinForce * this.forceDebugLineCoef, 0);
+        // ctx.stroke();
 
-        ctx.moveTo(0, 0)
-        ctx.strokeColor = cc.Color.WHITE;
-        ctx.lineTo(this.yangForce * this.forceDebugLineCoef, 0);
-        ctx.stroke();
+        // ctx.moveTo(0, 0)
+        // ctx.strokeColor = cc.Color.WHITE;
+        // ctx.lineTo(this.yangForce * this.forceDebugLineCoef, 0);
+        // ctx.stroke();
+
+        ctx.moveTo(0, 0);
+        if (this.combinedForce > 0) {
+            ctx.strokeColor = cc.Color.BLACK;
+            ctx.lineTo(this.combinedForce, 0);
+            ctx.stroke();
+        } else if (this.combinedForce < 0) {
+            ctx.strokeColor = cc.Color.WHITE;
+            ctx.lineTo(this.combinedForce, 0);
+            ctx.stroke();
+        }
     },
 
     applyYinForce (force) {

@@ -13,6 +13,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        debug: true,
 
         touchPad: {
             default: null,
@@ -23,10 +24,6 @@ cc.Class({
             default: null,
             type: cc.Node
         },
-
-        //velocityMapping: true,
-
-        distanceMappingCoef: 5
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -46,9 +43,9 @@ cc.Class({
         this.slidingTrackScript = this.slidingTrack.getComponent("SlidingTrack");
         this.yinControlPadScript = this.yinControlPad.getComponent("TouchPad");
         this.yangControlPadScript = this.yangControlPad.getComponent("TouchPad");
-        this.yinControlPadScript.radius = this.slidingTrackScript.radius;
-        this.yangControlPadScript.radius = this.slidingTrackScript.radius;
-        this.yinControlPadScript.thisIsYinEye(3.14 / this.distanceMappingCoef);
+        this.yinControlPadScript.slidingTrack = this.slidingTrack;
+        this.yangControlPadScript.slidingTrack = this.slidingTrack;
+        this.yinControlPadScript.thisIsYinTouchPad();
     },
 
     start () {
@@ -56,9 +53,8 @@ cc.Class({
     },
 
     update (dt) {
-        this.slidingTrackScript.moveYinyangEye(
-            this.yinControlPadScript.angle, 
-            this.yangControlPadScript.angle, 
-            this.distanceMappingCoef);
+        // this.slidingTrackScript.moveYinyangEye(
+        //     this.yinControlPadScript.currentAngle, 
+        //     this.yangControlPadScript.currentAngle, );
     },
 });

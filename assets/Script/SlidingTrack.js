@@ -13,8 +13,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        radius: 20   //轨道的半径，已被弃用
-
+        debug: true,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -30,8 +29,10 @@ cc.Class({
     },
 
     start () {
-        this.drawDebugCircle();
-        cc.log("parent Position: ", this.node.getPosition().x, this.node.getPosition().y);
+        if (this.debug) {
+            this.drawDebugCircle();
+            cc.log("parent Position: ", this.node.getPosition().x, this.node.getPosition().y);
+        }
         this.yangEye.setPosition(this.radius, 0);
         this.yinEye.setPosition(-this.radius, 0);
 
@@ -46,14 +47,8 @@ cc.Class({
         ctx.stroke();
     },
 
-    moveYinyangEye (deltaYin, deltaYang, coef) {
-        if (!(deltaYin == 3.14 && deltaYang == 0)){
-            var angleYin = coef * deltaYin;
-            var angleYang = coef * deltaYang;
-
-            //cc.log("阴阳信息: ", deltaYin, deltaYang, coef);
-            //cc.log("阴阳角度：", angleYin, angleYang);
-            //cc.log("测试运算：", this.yinEye.getPosition.x);
+    moveYinyangEye (angleYin, angleYang) {
+        if (!(angleYin == 3.14 && angleYang == 0)){
 
             var xYin = Math.cos(angleYin) * this.radius;
             var yYin = Math.sin(angleYin) * this.radius;
@@ -73,5 +68,5 @@ cc.Class({
         var y = Math.sin(angle) * this.radius;
 
         return new cc.Vec2(x, y);
-    }
+    },
 });

@@ -13,6 +13,8 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        debug: true,
+
         subdivisionLevel: 40,  //构成黑白流体分界线的节点的细分程度，数值越小，节点数量越多
 
         //构成黑白流体分界线的节点
@@ -62,13 +64,13 @@ cc.Class({
     },
 
     update (dt) {
-        cc.log("阳球力：");
-        this.applyJointForce(this.yangEye);
-        cc.log("阴球力：");
-        this.applyJointForce(this.yinEye);
+        //cc.log("阳球力：");
+        this.applyJointForce(this.yangEye, true);
+        //cc.log("阴球力：");
+        this.applyJointForce(this.yinEye, false);
     },
 
-    applyJointForce (eye) {
+    applyJointForce (eye, isYang) {
         for (var i = 1; i < this.jointAmount - 1; i++) {
             var joint = this.joints[i];
             var jointScript = joint.getComponent("ChainJoint");
@@ -82,14 +84,14 @@ cc.Class({
                 force = 0;
             }
 
-            if (eye.getPosition().x > 0) {
+            if (isYang) {
                 force = -force;
                 jointScript.applyYangForce(force);
             } else {
                 jointScript.applyYinForce(force);
             }
 
-            cc.log("力的大小：", force);
+            //cc.log("力的大小：", force);
         }
     }
 });

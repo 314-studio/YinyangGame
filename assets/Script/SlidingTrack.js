@@ -26,6 +26,8 @@ cc.Class({
 
         var windowSize = cc.winSize;
         this.radius = windowSize.height / 4;
+
+        this.ctx = this.getComponent(cc.Graphics);
     },
 
     start () {
@@ -39,12 +41,22 @@ cc.Class({
         //cc.log("新的位置",this.generateRamdomHaloPositon());
     },
 
-    //update (dt) {},
+    update (dt) {
+        if (this.debug) {
+            this.ctx.clear();
+            this.drawDebugCircle();
+            this.ctx.circle(this.yinEye.getPosition().x, this.yinEye.getPosition().y, this.radius);
+            this.ctx.circle(this.yangEye.getPosition().x, this.yangEye.getPosition().y, this.radius);
+            this.ctx.stroke();
+        }
+    },
 
     drawDebugCircle () {
-        var ctx = this.getComponent(cc.Graphics);
-        ctx.circle(0, 0, this.radius);
-        ctx.stroke();
+        
+        this.ctx.circle(0, 0, this.radius);
+        this.ctx.stroke();
+
+
     },
 
     generateRamdomHaloPositon () {

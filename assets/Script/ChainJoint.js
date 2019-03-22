@@ -13,7 +13,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        debug: false,
+        debug: true,
         forceCoef: 5
     },
 
@@ -26,6 +26,7 @@ cc.Class({
         this.combinedForce = 0;
         
         this.forceDebugLineCoef = 1;
+        this.awayFromEye = false;
     },
 
     start () {
@@ -42,9 +43,14 @@ cc.Class({
         this.combinedForce = this.yinForce + this.yangForce;
 
         var x = this.node.getPosition().x;
-        x += this.combinedForce * dt * 5;
+        x += this.combinedForce * dt * this.forceCoef;
         this.node.setPosition(x, this.node.getPosition().y);
 
+        if (this.combinedForce == 0 && this.awayFromEye) {
+            var h = this.node.getPosition().x;
+            h -= this.node.getPosition().x * dt * this.forceCoef;
+            this.node.setPosition(h, this.node.getPosition().y);
+        }
     },
 
     drawDebugInfo () {
@@ -70,11 +76,11 @@ cc.Class({
 
         ctx.moveTo(0, 0);
         if (this.combinedForce > 0) {
-            ctx.strokeColor = cc.Color.BLACK;
+            ctx.strokeColor = cc.Color.RED;
             ctx.lineTo(this.combinedForce, 0);
             ctx.stroke();
         } else if (this.combinedForce < 0) {
-            ctx.strokeColor = cc.Color.WHITE;
+            ctx.strokeColor = cc.Color.ORANGE;
             ctx.lineTo(this.combinedForce, 0);
             ctx.stroke();
         }

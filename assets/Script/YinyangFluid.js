@@ -38,7 +38,7 @@ cc.Class({
 
     onLoad () {
         this.windowsSize = cc.winSize;
-        this.jointAmount = this.windowsSize.height / this.subdivisionLevel + 1;
+        this.jointAmount = Math.round(this.windowsSize.height / this.subdivisionLevel + 1);
         cc.log("节点数量: ", this.jointAmount);
 
         this.joints = new Array(this.jointAmount);
@@ -64,7 +64,6 @@ cc.Class({
                  this.windowsSize.height / 2 - (i * this.windowsSize.height / (this.jointAmount - 1)));
         }
         this.ctx = this.getComponent(cc.Graphics);
-        //this.drawCurve();
     },
 
     update (dt) {
@@ -86,8 +85,17 @@ cc.Class({
 
             var force = this.inverseFuncConstance - offset;
 
+            // if (offset > this.radius) {
+            //     jointScript.awayFromEye = true;
+            // } else {
+            //     jointScript.awayFromEye = false;
+            // }
+
             if (force < 0) {
                 force = 0;
+                jointScript.awayFromEye = true;
+            } else {
+                jointScript.awayFromEye = false;
             }
 
             if (isYang) {

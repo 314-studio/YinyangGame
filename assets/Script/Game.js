@@ -53,8 +53,5 @@ cc.Class({
     },
 
     update (dt) {
-        // this.slidingTrackScript.moveYinyangEye(
-        //     this.yinControlPadScript.currentAngle, 
-        //     this.yangControlPadScript.currentAngle, );
     },
 });

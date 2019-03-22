@@ -13,7 +13,8 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        debug: true,
+        debug: false,
+        forceCoef: 5
     },
 
     // LIFE-CYCLE CALLBACKS:

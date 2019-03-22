@@ -13,7 +13,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        debug: true,
+        debug: false,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -45,21 +45,6 @@ cc.Class({
         var ctx = this.getComponent(cc.Graphics);
         ctx.circle(0, 0, this.radius);
         ctx.stroke();
-    },
-
-    moveYinyangEye (angleYin, angleYang) {
-        if (!(angleYin == 3.14 && angleYang == 0)){
-
-            var xYin = Math.cos(angleYin) * this.radius;
-            var yYin = Math.sin(angleYin) * this.radius;
-            var xYang = Math.cos(angleYang) * this.radius;
-            var yYang = Math.sin(angleYang) * this.radius;
-
-            //cc.log("阴阳位置（阴XY，阳XY）：", xYin, yYin, xYang, yYang);
-
-            this.yinEye.setPosition(xYin, yYin);
-            this.yangEye.setPosition(xYang, yYang);
-        }
     },
 
     generateRamdomHaloPositon () {

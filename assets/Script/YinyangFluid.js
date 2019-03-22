@@ -8,6 +8,8 @@
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] https://www.cocos2d-x.org/docs/creator/manual/en/scripting/life-cycle-callbacks.html
 
+var bSpline = require("b-spline");
+
 //该类制作了随小球移动而变化的黑白流体的动画效果
 cc.Class({
     extends: cc.Component,
@@ -61,6 +63,8 @@ cc.Class({
             this.joints[i].setPosition(0,
                  this.windowsSize.height / 2 - (i * this.windowsSize.height / (this.jointAmount - 1)));
         }
+        this.ctx = this.getComponent(cc.Graphics);
+        //this.drawCurve();
     },
 
     update (dt) {
@@ -68,6 +72,8 @@ cc.Class({
         this.applyJointForce(this.yangEye, true);
         //cc.log("阴球力：");
         this.applyJointForce(this.yinEye, false);
+
+        this.drawCurve();
     },
 
     applyJointForce (eye, isYang) {
@@ -93,5 +99,28 @@ cc.Class({
 
             //cc.log("力的大小：", force);
         }
-    }
+    },
+
+    drawCurve () {
+        var points = new Array(this.jointAmount);
+        for (var i = 0; i < this.jointAmount; i ++) {
+            var joint = this.joints[i];
+            points[i] = [joint.getPosition().x, joint.getPosition().y];
+        }
+        var degree = 2;
+        this.ctx.clear();
+        this.ctx.moveTo(points[0][0], points[0][1]);
+        for (var t = 0; t < 1; t += 0.01) {
+            var point = bSpline(t, degree, points);
+            //cc.log("point到底是什么？",point)
+            if (t > 0) {
+                this.ctx.lineTo(point[0], point[1]);
+            }
+        }
+        this.ctx.lineTo(points[this.jointAmount-1][0], points[this.jointAmount-1][1]);
+        this.ctx.lineTo(-this.windowsSize.width / 2, -this.windowsSize.height / 2);
+        this.ctx.lineTo(-this.windowsSize.width / 2, this.windowsSize.height / 2);
+        this.ctx.lineTo(points[0][0], points[0][1]);
+        this.ctx.fill();
+    },
 });

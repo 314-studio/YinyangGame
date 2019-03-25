@@ -48,6 +48,9 @@ cc.Class({
         this._radius = windowSize.height / 4;
         this.startAngle = 0;
         this.offset = 1;
+        this.delta = 0;
+        this.lastDelta = 0;
+        this.startY = 0;
 
         this.initEventListener();
     },
@@ -64,112 +67,54 @@ cc.Class({
     update (dt) {
 
         //控制小球不能超过自己的区域
-        //Todo: 将小球的控制移到此处避免卡顿问题
         if (this.isYinTouchPad) {
-            if (this.angle <= this.angle90) {
-               this.setPause(this.angle90)
-            } else if (this.angle >= this.angle270) {
-                this.setPause(this.angle270)
+            if (this.yinEye.getPosition().x >= 0) {
+                this.controlPaused = true;
+                this.yinEye.setPosition(0, this.radius);
+            } else {
+                this.controlPaused = false;
             }
         } else {
-            if (this.angle >= this.angle90) {
-                this.setPause(this.angle90)
-            } else if (this.angle <= -this.angle90) {
-                this.setPause(-this.angle90)
-            }
-        }
-
-        if (!this.controlPaused) {
-            this.currentAngle = this.angle;
-        } else {
-            if (this.isYinTouchPad) {
-                if (this.angle > this.angle90 || this.angle < this.angle270) {
-                    this.controlPaused = false;
-                }
+            if (this.yangEye.getPosition().x <= 0) {
+                this.controlPaused = true;
+                this.yangEye.setPosition(0, this.radius);
             } else {
-                if (this.angle < this.angle90 || this.angle > -this.angle90) {
-                    this.controlPaused = false;
-                }
+                this.controlPaused = false;
             }
         }
 
-        if (!(this.currentAngle == 3.14 && this.currentAngle == 0)){
-
-            if (this.isYinTouchPad) {
-                var xYin = Math.cos(this.currentAngle) * this.radius;
-                var yYin = Math.sin(this.currentAngle) * this.radius;
-                this.yinEye.setPosition(xYin, yYin);
-            } else {
-                var xYang = Math.cos(this.currentAngle) * this.radius;
-                var yYang = Math.sin(this.currentAngle) * this.radius;
-                this.yangEye.setPosition(xYang, yYang);
-            }
-        }
-    },
-
-    setPause (angle) {
-        this.angle = angle;
-        this.startAngle = angle;
-        this.controlPaused = true;
+        cc.log(this.delta, this.angle, this.controlPaused);
     },
 
     initEventListener () {
-        var startY = 0; 
-        var delta = 0;
-
-        //响应鼠标事件
-        this.node.on ('mousedown', function (event) {
-            this.padPressed = true;
-            startY = event.getLocationY();
-        }, this);
-
-        this.node.on ('mousemove', function (event) {
-            if (this.padPressed) {
-                var y = event.getLocationY();
-                delta = y - startY;
-                delta *= this.distanceMappingCoef;
-                this.angle = this.startAngle + this.offset * delta / this.radius;
-            }
-
-        }, this);
-
-        this.node.on ('mouseup', function (event) {
-            this.padPressed = false;
-            delta = 0;
-            this.startAngle = this.angle;
-        }, this);
-
-        this.node.on ('mouseleave', function (event) {
-            this.padPressed = false;
-            delta = 0;
-            this.startAngle = this.angle;
-        }, this);
-
-
         //响应触摸事件
         this.node.on ('touchstart', function (event) {
             this.padPressed = true;
-            startY = event.getLocationY();
+            this.startY = event.getLocationY();
         }, this);
 
         this.node.on ('touchmove', function (event) {
             if (this.padPressed) {
                 var y = event.getLocationY();
-                delta = y - startY;
-                delta *= this.distanceMappingCoef;
-                this.angle = this.startAngle + this.offset * delta / this.radius;
+                this.delta = y - this.startY;
+                if (this.controlPaused) {
+                    this.delta -= this.deltaOffset(event.getDelta().y)
+                }
+                this.delta *= this.distanceMappingCoef;
+                this.angle = this.startAngle + this.offset * this.delta / this.radius;
+                this.updateEyePosition(this.angle);
             }
         }, this);
 
         this.node.on ('touchend', function (event) {
             this.padPressed = false;
-            delta = 0;
+            this.delta = 0;
             this.startAngle = this.angle;
         }, this);
 
         this.node.on ('touchcancel', function (event) {
             this.padPressed = false;
-            delta = 0;
+            this.delta = 0;
             this.startAngle = this.angle;
         }, this);
     },
@@ -181,4 +126,32 @@ cc.Class({
         this.angle = 3.14;
         this.isYinTouchPad = true;
     },
+
+    updateEyePosition (angle) {
+        if (this.isYinTouchPad) {
+            var xYin = Math.cos(angle) * this.radius;
+            var yYin = Math.sin(angle) * this.radius;
+            this.yinEye.setPosition(xYin, yYin);
+        } else {
+            var xYang = Math.cos(angle) * this.radius;
+            var yYang = Math.sin(angle) * this.radius;
+            this.yangEye.setPosition(xYang, yYang);
+        }
+    },
+
+    deltaOffset (deltaY) {
+        if (this.isYinTouchPad) {
+            if (this.yinEye.getPosition().x > 0) {
+                return deltaY;
+            } else {
+                return -deltaY;
+            }
+        } else {
+            if (this.yangEye.getPosition().x > 0) {
+                return deltaY;
+            } else {
+                return -deltaY;
+            }
+        }
+    }
 });

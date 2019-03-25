@@ -492,8 +492,8 @@
       "__id__": 9
     },
     "_enabled": true,
-    "debug": false,
-    "subdivisionLevel": 20,
+    "debug": true,
+    "subdivisionLevel": 40,
     "chainJoint": {
       "__uuid__": "c351059a-1abc-4a67-a007-543e29d29964"
     },
@@ -785,7 +785,7 @@
       "__id__": 12
     },
     "_enabled": true,
-    "debug": false,
+    "debug": true,
     "_id": "eeWM+7BFxGlra7RnC4egYT"
   },
   {

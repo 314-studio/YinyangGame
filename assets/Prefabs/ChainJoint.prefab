@@ -109,7 +109,7 @@
       "__id__": 1
     },
     "_enabled": true,
-    "debug": false,
+    "debug": true,
     "forceCoef": 8,
     "_id": ""
   },

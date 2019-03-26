@@ -13,7 +13,8 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-
+        debug: true,
+        forceCoef: 5
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -25,23 +26,31 @@ cc.Class({
         this.combinedForce = 0;
         
         this.forceDebugLineCoef = 1;
+        this.awayFromEye = false;
     },
 
     start () {
-        this.drawDebugInfo();
+        if (this.debug) {
+            this.drawDebugInfo();
+        }
     },
 
     update (dt) {
-        this.drawDebugInfo();
+        if (this.debug) {
+            this.debugUpdate(dt);
+        }
+
+        this.combinedForce = this.yinForce + this.yangForce;
+
         var x = this.node.getPosition().x;
-        x += dt * this.combinedForce;
+        x += this.combinedForce * dt * this.forceCoef;
         this.node.setPosition(x, this.node.getPosition().y);
-        //this.debugUpdate(dt);
-        // var ctx = this.getComponent(cc.Graphics);
-        // ctx.clear();
-        // ctx.moveTo(0, 0);
-        // ctx.lineTo(this.combinedForce, 0);
-        // ctx.stroke();
+
+        if (this.combinedForce == 0 && this.awayFromEye) {
+            var h = this.node.getPosition().x;
+            h -= this.node.getPosition().x * dt * this.forceCoef;
+            this.node.setPosition(h, this.node.getPosition().y);
+        }
     },
 
     drawDebugInfo () {
@@ -54,23 +63,34 @@ cc.Class({
         var ctx = this.getComponent(cc.Graphics);
         ctx.clear();
 
-        ctx.moveTo(0, 0);
-        ctx.strokeColor = cc.Color.BLACK;
-        ctx.lineTo(this.yinForce * this.forceDebugLineCoef, 0);
-        ctx.stroke();
+        this.drawDebugInfo();
+        // ctx.moveTo(0, 0);
+        // ctx.strokeColor = cc.Color.BLACK;
+        // ctx.lineTo(this.yinForce * this.forceDebugLineCoef, 0);
+        // ctx.stroke();
 
-        ctx.moveTo(0, 0)
-        ctx.strokeColor = cc.Color.WHITE;
-        ctx.lineTo(this.yangForce * this.forceDebugLineCoef, 0);
-        ctx.stroke();
+        // ctx.moveTo(0, 0)
+        // ctx.strokeColor = cc.Color.WHITE;
+        // ctx.lineTo(this.yangForce * this.forceDebugLineCoef, 0);
+        // ctx.stroke();
+
+        ctx.moveTo(0, 0);
+        if (this.combinedForce > 0) {
+            ctx.strokeColor = cc.Color.RED;
+            ctx.lineTo(this.combinedForce, 0);
+            ctx.stroke();
+        } else if (this.combinedForce < 0) {
+            ctx.strokeColor = cc.Color.ORANGE;
+            ctx.lineTo(this.combinedForce, 0);
+            ctx.stroke();
+        }
     },
 
-    applyYinyangForce (force) {
-        if (force > 0) {
-            this.yinForce = force;
-        } else {
-            this.yangForce = force;
-        }
-        this.combinedForce = this.yangForce + this.yinForce;
+    applyYinForce (force) {
+        this.yinForce = force;
+    },
+
+    applyYangForce (force) {
+        this.yangForce = force;
     }
 });

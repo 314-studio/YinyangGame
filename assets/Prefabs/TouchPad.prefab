@@ -78,7 +78,7 @@
       "__id__": 1
     },
     "_enabled": true,
-    "isYinEye": false,
+    "distanceMappingCoef": 2,
     "_id": ""
   },
   {

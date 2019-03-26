@@ -13,8 +13,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        radius: 20   //轨道的半径，已被弃用
-
+        debug: false,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -27,44 +26,37 @@ cc.Class({
 
         var windowSize = cc.winSize;
         this.radius = windowSize.height / 4;
+
+        this.ctx = this.getComponent(cc.Graphics);
     },
 
     start () {
-        this.drawDebugCircle();
-        cc.log("parent Position: ", this.node.getPosition().x, this.node.getPosition().y);
+        if (this.debug) {
+            this.drawDebugCircle();
+            cc.log("parent Position: ", this.node.getPosition().x, this.node.getPosition().y);
+        }
         this.yangEye.setPosition(this.radius, 0);
         this.yinEye.setPosition(-this.radius, 0);
 
         //cc.log("新的位置",this.generateRamdomHaloPositon());
     },
 
-    //update (dt) {},
-
-    drawDebugCircle () {
-        var ctx = this.getComponent(cc.Graphics);
-        ctx.circle(0, 0, this.radius);
-        ctx.stroke();
+    update (dt) {
+        if (this.debug) {
+            this.ctx.clear();
+            this.drawDebugCircle();
+            this.ctx.circle(this.yinEye.getPosition().x, this.yinEye.getPosition().y, this.radius);
+            this.ctx.circle(this.yangEye.getPosition().x, this.yangEye.getPosition().y, this.radius);
+            this.ctx.stroke();
+        }
     },
 
-    moveYinyangEye (deltaYin, deltaYang, coef) {
-        if (!(deltaYin == 3.14 && deltaYang == 0)){
-            var angleYin = coef * deltaYin;
-            var angleYang = coef * deltaYang;
+    drawDebugCircle () {
+        
+        this.ctx.circle(0, 0, this.radius);
+        this.ctx.stroke();
 
-            //cc.log("阴阳信息: ", deltaYin, deltaYang, coef);
-            //cc.log("阴阳角度：", angleYin, angleYang);
-            //cc.log("测试运算：", this.yinEye.getPosition.x);
 
-            var xYin = Math.cos(angleYin) * this.radius;
-            var yYin = Math.sin(angleYin) * this.radius;
-            var xYang = Math.cos(angleYang) * this.radius;
-            var yYang = Math.sin(angleYang) * this.radius;
-
-            //cc.log("阴阳位置（阴XY，阳XY）：", xYin, yYin, xYang, yYang);
-
-            this.yinEye.setPosition(xYin, yYin);
-            this.yangEye.setPosition(xYang, yYang);
-        }
     },
 
     generateRamdomHaloPositon () {
@@ -73,5 +65,5 @@ cc.Class({
         var y = Math.sin(angle) * this.radius;
 
         return new cc.Vec2(x, y);
-    }
+    },
 });

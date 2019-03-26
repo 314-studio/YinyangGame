@@ -13,6 +13,7 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        debug: true,
 
         touchPad: {
             default: null,
@@ -23,6 +24,7 @@ cc.Class({
             default: null,
             type: cc.Node
         },
+<<<<<<< HEAD
         
         halo:{
             default: null,
@@ -32,6 +34,8 @@ cc.Class({
         velocityMapping: true,
 
         distanceMappingCoef: 5
+=======
+>>>>>>> 9bd366a07217a77cac677e3d1b2fe06b7834aff1
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -51,11 +55,17 @@ cc.Class({
         this.slidingTrackScript = this.slidingTrack.getComponent("SlidingTrack");
         this.yinControlPadScript = this.yinControlPad.getComponent("TouchPad");
         this.yangControlPadScript = this.yangControlPad.getComponent("TouchPad");
+<<<<<<< HEAD
         this.yinControlPadScript.radius = this.slidingTrackScript.radius;
         this.yangControlPadScript.radius = this.slidingTrackScript.radius;
         this.yinControlPadScript.thisIsYinEye(3.14 / this.distanceMappingCoef);
         
 
+=======
+        this.yinControlPadScript.slidingTrack = this.slidingTrack;
+        this.yangControlPadScript.slidingTrack = this.slidingTrack;
+        this.yinControlPadScript.thisIsYinTouchPad();
+>>>>>>> 9bd366a07217a77cac677e3d1b2fe06b7834aff1
     },
 
     start () {
@@ -63,6 +73,7 @@ cc.Class({
     },
 
     update (dt) {
+<<<<<<< HEAD
         this.slidingTrackScript.moveYinyangEye(
             this.yinControlPadScript.angle, 
             this.yangControlPadScript.angle, 
@@ -76,5 +87,7 @@ cc.Class({
             halo.setPosition(this.slidingTrackScript.generateRamdomHaloPositon());
             this.deltaTime = 0;
         }
+=======
+>>>>>>> 9bd366a07217a77cac677e3d1b2fe06b7834aff1
     },
 });

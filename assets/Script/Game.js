@@ -42,19 +42,30 @@ cc.Class({
         var windowSize = cc.winSize;
         this.yinControlPad = cc.instantiate(this.touchPad);
         this.yangControlPad = cc.instantiate(this.touchPad);
+
         this.yinControlPad.parent = this.parent || this.node;
         this.yangControlPad.parent = this.parent || this.node;
+
         this.yinControlPad.setPosition(-windowSize.width / 4, 0);
         this.yangControlPad.setPosition(windowSize.width / 4, 0);
+
         cc.log("右触摸节点x位置：", this.yangControlPad.getPosition().x, this.yangControlPad.getPosition().y);
         cc.log("右触摸节点大小：", this.yangControlPad.width, this.yangControlPad.height);
 
         this.slidingTrackScript = this.slidingTrack.getComponent("SlidingTrack");
         this.yinControlPadScript = this.yinControlPad.getComponent("TouchPad");
         this.yangControlPadScript = this.yangControlPad.getComponent("TouchPad");
+
         this.yinControlPadScript.slidingTrack = this.slidingTrack;
         this.yangControlPadScript.slidingTrack = this.slidingTrack;
         this.yinControlPadScript.thisIsYinTouchPad();
+
+        //加载音乐与节拍
+        this.musicLoaded = false;
+        this.beginTempoCount = false;
+        this.tempoCount = 0;
+        this.loadMusicAndTempo();
+        
     },
 
     start () {
@@ -62,14 +73,50 @@ cc.Class({
     },
 
     update (dt) {
-
-
-        this.deltaTime += dt;
-        if (this.deltaTime >= 5) {
-            var halo = cc.instantiate(this.halo);
-            halo.parent = this.node;
-            halo.setPosition(this.slidingTrackScript.generateRamdomHaloPositon());
-            this.deltaTime = 0;
+        if (this.musicLoaded) {
+            this.audioID = cc.audioEngine.play(this.music, false, 1);
+            this.beginTempoCount = true;
+            this.musicLoaded = false;
         }
+
+        if (this.beginTempoCount) {
+            this.deltaTime += dt;
+            if (this.deltaTime >= this.tempo[this.tempoCount]) {
+                var pos = this.slidingTrackScript.generateRamdomHaloPositon();
+                var halo = cc.instantiate(this.halo);
+                halo.parent = this.node;
+
+                var rand = Math.random();
+                if (rand < 0.5) {
+                    halo.setPosition(pos);
+                } else {
+                    halo.setPosition(-pos.x, pos.y);
+                }
+                this.tempoCount++;
+            }
+
+            if (this.tempoCount == this.tempo.length - 1) {
+                this.beginTempoCount = false;
+            }
+        }
+    },
+
+    loadMusicAndTempo () {
+        let self = this;
+        cc.loader.loadRes('Musics/Disfigure', cc.AudioClip, function (err, music) {
+            if (err) {
+                cc.error(err);
+                return;
+            }
+            self.music = music;
+            self.musicLoaded = true;
+        });
+        cc.loader.loadRes('Json/Disfigure', function (err, tempo) {
+            var test_tempo = new Array(tempo.json.length);
+            for (var i = 0; i < tempo.json.length; i++) {
+                test_tempo[i] = parseFloat(tempo.json[i]);
+            }
+            self.tempo = test_tempo;
+        });
     },
 });

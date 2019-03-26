@@ -160,7 +160,7 @@ cc.Class({
             var xYang = Math.cos(angle) * this.radius;
             var yYang = Math.sin(angle) * this.radius;
             this.yangEye.setPosition(xYang, yYang);
-            cc.log("yang");
+            //cc.log("yang");
         }
     },
 });

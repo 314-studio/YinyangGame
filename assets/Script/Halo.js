@@ -34,7 +34,7 @@ cc.Class({
     onLoad () {
         this.animation = this.node.getComponent(cc.Animation);
         this.hit = false;
-        //this.animation.on('finished',this.onFinished,this);
+        this.animation.on('finished',this.onFinished,this);
     },
 
     start () {

@@ -41,8 +41,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 0.4458333333333333,
+      "y": 0.4458333333333333,
       "z": 1
     },
     "_quat": {
@@ -695,6 +695,10 @@
     "slidingTrack": {
       "__id__": 7
     },
+    "halo": {
+      "__uuid__": "5498437b-5e4b-4974-9669-1b574bb0695d"
+    },
+    "velocityMapping": true,
     "distanceMappingCoef": 2.5,
     "_id": "4dKxKOjYlMwLOxxgx0y8dA"
   }

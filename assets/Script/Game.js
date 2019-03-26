@@ -23,8 +23,13 @@ cc.Class({
             default: null,
             type: cc.Node
         },
+        
+        halo:{
+            default: null,
+            type: cc.Prefab
+        },
 
-        //velocityMapping: true,
+        velocityMapping: true,
 
         distanceMappingCoef: 5
     },
@@ -49,10 +54,12 @@ cc.Class({
         this.yinControlPadScript.radius = this.slidingTrackScript.radius;
         this.yangControlPadScript.radius = this.slidingTrackScript.radius;
         this.yinControlPadScript.thisIsYinEye(3.14 / this.distanceMappingCoef);
+        
+
     },
 
     start () {
-
+        this.deltaTime = 0;
     },
 
     update (dt) {
@@ -60,5 +67,14 @@ cc.Class({
             this.yinControlPadScript.angle, 
             this.yangControlPadScript.angle, 
             this.distanceMappingCoef);
+
+
+        this.deltaTime += dt;
+        if (this.deltaTime >= 5) {
+            var halo = cc.instantiate(this.halo);
+            halo.parent = this.node;
+            halo.setPosition(this.slidingTrackScript.generateRamdomHaloPositon());
+            this.deltaTime = 0;
+        }
     },
 });

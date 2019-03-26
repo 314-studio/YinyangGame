@@ -1,0 +1,107 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "Halo_Hit",
+  "_objFlags": 0,
+  "_native": "",
+  "_duration": 0.6666666666666666,
+  "sample": 60,
+  "speed": 3,
+  "wrapMode": "36",
+  "curveData": {
+    "paths": {
+      "环1": {
+        "props": {
+          "scale": [
+            {
+              "frame": 0.08333333333333333,
+              "value": {
+                "__type__": "cc.Vec2",
+                "x": 1,
+                "y": 1
+              }
+            },
+            {
+              "frame": 0.6666666666666666,
+              "value": {
+                "__type__": "cc.Vec2",
+                "x": 0.4,
+                "y": 0.4
+              }
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 0.4666666666666667,
+              "value": 253.1232
+            },
+            {
+              "frame": 0.6666666666666666,
+              "value": 0
+            }
+          ],
+          "color": [
+            {
+              "frame": 0.6666666666666666,
+              "value": {
+                "__type__": "cc.Color",
+                "r": 120,
+                "g": 255,
+                "b": 120,
+                "a": 255
+              }
+            }
+          ]
+        }
+      },
+      "环2": {
+        "props": {
+          "scale": [
+            {
+              "frame": 0.5,
+              "value": {
+                "__type__": "cc.Vec2",
+                "x": 1,
+                "y": 1
+              }
+            },
+            {
+              "frame": 0.6666666666666666,
+              "value": {
+                "__type__": "cc.Vec2",
+                "x": 0.6,
+                "y": 0.6
+              }
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0.5,
+              "value": 0
+            },
+            {
+              "frame": 0.6666666666666666,
+              "value": 255
+            }
+          ],
+          "color": [
+            {
+              "frame": 0.6666666666666666,
+              "value": {
+                "__type__": "cc.Color",
+                "r": 120,
+                "g": 255,
+                "b": 120,
+                "a": 255
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "events": []
+}

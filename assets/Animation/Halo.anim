@@ -1,0 +1,87 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "Halo",
+  "_objFlags": 0,
+  "_native": "",
+  "_duration": 0.6666666666666666,
+  "sample": 60,
+  "speed": 1,
+  "wrapMode": "0",
+  "curveData": {
+    "paths": {
+      "环1": {
+        "props": {
+          "scale": [
+            {
+              "frame": 0.08333333333333333,
+              "value": {
+                "__type__": "cc.Vec2",
+                "x": 1,
+                "y": 1
+              }
+            },
+            {
+              "frame": 0.6666666666666666,
+              "value": {
+                "__type__": "cc.Vec2",
+                "x": 0.4,
+                "y": 0.4
+              }
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0,
+              "value": 0
+            },
+            {
+              "frame": 0.08333333333333333,
+              "value": 255
+            },
+            {
+              "frame": 0.5,
+              "value": 252.96
+            },
+            {
+              "frame": 0.6666666666666666,
+              "value": 0
+            }
+          ]
+        }
+      },
+      "环2": {
+        "props": {
+          "scale": [
+            {
+              "frame": 0.5,
+              "value": {
+                "__type__": "cc.Vec2",
+                "x": 1,
+                "y": 1
+              }
+            },
+            {
+              "frame": 0.6666666666666666,
+              "value": {
+                "__type__": "cc.Vec2",
+                "x": 0.6,
+                "y": 0.6
+              }
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0.5,
+              "value": 0
+            },
+            {
+              "frame": 0.6666666666666666,
+              "value": 255
+            }
+          ]
+        }
+      }
+    }
+  },
+  "events": []
+}

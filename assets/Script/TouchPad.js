@@ -13,24 +13,6 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        currentAngle: {
-            get () {
-                return this._angle;
-            },
-            set (value) {
-                this._angle = value;
-            }
-        },
-
-        radius: {
-            get () {
-                return this._radius;
-            },
-            set (value) {
-                this._radius = value;
-            }
-        },
-
         distanceMappingCoef: 1,
     },
 
@@ -44,13 +26,9 @@ cc.Class({
         this.isYinTouchPad = false;
         this.controlPaused = false;
         this.angle = 0;
-        this._angle = 0;
-        this._radius = windowSize.height / 4;
+        this.radius = windowSize.height / 4;
         this.startAngle = 0;
         this.offset = 1;
-        this.delta = 0;
-        this.lastDelta = 0;
-        this.startY = 0;
 
         this.initEventListener();
     },
@@ -61,48 +39,94 @@ cc.Class({
 
         var temp = Math.PI / 180;
         this.angle90 = 90 * temp;
+        this.angle90Plus = this.angle90 + 0.01;
         this.angle270 = 270 * temp;
     },
 
     update (dt) {
 
         //控制小球不能超过自己的区域
-        if (this.isYinTouchPad) {
-            if (this.yinEye.getPosition().x >= 0) {
-                this.controlPaused = true;
-                this.yinEye.setPosition(0, this.radius);
+        if (!this.controlPaused) {
+            if (this.isYinTouchPad) {
+                if (this.yinEye.getPosition().x > 0) {
+                    this.controlPaused = true;
+                    if (this.yinEye.getPosition().y > 0) {
+                        this.yinEye.setPosition(0, this.radius);
+                    } else {
+                        this.yinEye.setPosition(0, -this.radius);
+                    }
+                }
             } else {
-                this.controlPaused = false;
-            }
-        } else {
-            if (this.yangEye.getPosition().x <= 0) {
-                this.controlPaused = true;
-                this.yangEye.setPosition(0, this.radius);
-            } else {
-                this.controlPaused = false;
+                if (this.yangEye.getPosition().x < 0) {
+                    this.controlPaused = true;
+                    if (this.yangEye.getPosition().y > 0) {
+                        this.yangEye.setPosition(0, this.radius);
+                    } else {
+                        this.yangEye.setPosition(0, -this.radius);
+                    }
+                }
             }
         }
-
-        cc.log(this.delta, this.angle, this.controlPaused);
     },
 
     initEventListener () {
+        var startY = 0;
+        var delta = 0;
+        var lastDelta = 0;
+
         //响应触摸事件
         this.node.on ('touchstart', function (event) {
             this.padPressed = true;
-            this.startY = event.getLocationY();
+            startY = event.getLocationY();
         }, this);
 
         this.node.on ('touchmove', function (event) {
             if (this.padPressed) {
                 var y = event.getLocationY();
-                this.delta = y - this.startY;
+                delta = y - startY;
+                delta *= this.distanceMappingCoef;
+
                 if (this.controlPaused) {
-                    this.delta -= this.deltaOffset(event.getDelta().y)
+                    if (this.isYinTouchPad) {
+                        if (this.yinEye.getPosition().y > 0) {
+                            if (delta < lastDelta) {
+                                this.controlPaused = false;
+                                startY = y;
+                                this.startAngle = this.angle90Plus;
+                                delta = 0;
+                            }
+                        } else {
+                            if (delta > lastDelta) {
+                                this.controlPaused = false;
+                                startY = y;
+                                this.startAngle = this.angle270;
+                                delta = 0;
+                            }
+                        }
+                    } else {
+                        if (this.yangEye.getPosition().y > 0) {
+                            if (delta < lastDelta) {
+                                this.controlPaused = false;
+                                startY = y;
+                                this.startAngle = this.angle90;
+                                delta = 0;
+                            }
+                        } else {
+                            if (delta > lastDelta) {
+                                this.controlPaused = false;
+                                startY = y;
+                                this.startAngle = -this.angle90;
+                                delta = 0;
+                            }
+                        }
+                    }
                 }
-                this.delta *= this.distanceMappingCoef;
-                this.angle = this.startAngle + this.offset * this.delta / this.radius;
-                this.updateEyePosition(this.angle);
+                this.angle = this.startAngle + this.offset * delta / this.radius;
+
+                if (!this.controlPaused) {
+                    this.updateEyePosition(this.angle);
+                }
+                lastDelta = delta;
             }
         }, this);
 
@@ -136,22 +160,7 @@ cc.Class({
             var xYang = Math.cos(angle) * this.radius;
             var yYang = Math.sin(angle) * this.radius;
             this.yangEye.setPosition(xYang, yYang);
+            cc.log("yang");
         }
     },
-
-    deltaOffset (deltaY) {
-        if (this.isYinTouchPad) {
-            if (this.yinEye.getPosition().x > 0) {
-                return deltaY;
-            } else {
-                return -deltaY;
-            }
-        } else {
-            if (this.yangEye.getPosition().x > 0) {
-                return deltaY;
-            } else {
-                return -deltaY;
-            }
-        }
-    }
 });

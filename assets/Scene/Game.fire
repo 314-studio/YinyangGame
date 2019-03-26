@@ -41,8 +41,8 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 0.4458333333333333,
+      "y": 0.4458333333333333,
       "z": 1
     },
     "_quat": {
@@ -492,7 +492,7 @@
       "__id__": 9
     },
     "_enabled": true,
-    "debug": true,
+    "debug": false,
     "subdivisionLevel": 40,
     "chainJoint": {
       "__uuid__": "c351059a-1abc-4a67-a007-543e29d29964"
@@ -785,7 +785,7 @@
       "__id__": 12
     },
     "_enabled": true,
-    "debug": true,
+    "debug": false,
     "_id": "eeWM+7BFxGlra7RnC4egYT"
   },
   {
@@ -820,6 +820,11 @@
     "slidingTrack": {
       "__id__": 12
     },
+    "halo": {
+      "__uuid__": "5498437b-5e4b-4974-9669-1b574bb0695d"
+    },
+    "velocityMapping": true,
+    "distanceMappingCoef": 5,
     "_id": "f4okslG31CnLLJ1ffym1Qr"
   }
 ]

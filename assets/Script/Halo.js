@@ -12,29 +12,17 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        // foo: {
-        //     // ATTRIBUTES:
-        //     default: null,        // The default value will be used only when the component attaching
-        //                           // to a node for the first time
-        //     type: cc.SpriteFrame, // optional, default is typeof default
-        //     serializable: true,   // optional, default is true
-        // },
-        // bar: {
-        //     get () {
-        //         return this._bar;
-        //     },
-        //     set (value) {
-        //         this._bar = value;
-        //     }
-        // },
+        tempoDetectOffect: 5,
     },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
         this.animation = this.node.getComponent(cc.Animation);
-        this.hit = false;
+        this.hitted = false;
         this.animation.on('finished',this.onFinished,this);
+
+        this.defualtAnimDuration = this.animation.defaultClip.duration;
     },
 
     start () {
@@ -44,7 +32,24 @@ cc.Class({
     // update (dt) {},
 
     onFinished(type, state){
-        if (this.hit){
+        var haloPos = this.node.getPosition();
+        if (haloPos.x > 0) {
+            var yangPos = this.yangEye.getPosition();
+            if (Math.abs(haloPos.x - yangPos.x) < this.tempoDetectOffect &&
+                Math.abs(haloPos.y - yangPos.y) < this.tempoDetectOffect) {
+                this.hitted = true;
+            }
+        } else {
+            var yinPos = this.yinEye.getPosition();
+            if (Math.abs(haloPos.x - yinPos.x) < this.tempoDetectOffect &&
+                Math.abs(haloPos.y - yinPos.y) < this.tempoDetectOffect) {
+                this.hitted = true;
+            }
+        }
+
+
+        if (this.hitted){
+            this.game.gainScore();
             this.animation.play('Halo_Hit');
             this.animation.off('finished',this.onFinished,this);
         }
@@ -53,4 +58,10 @@ cc.Class({
             this.animation.off('finished',this.onFinished,this);
         }
     },
+
+    setSlidingTrack (slidingTrack) {
+        this.slidingTrack = slidingTrack;
+        this.yinEye = slidingTrack.getChildByName("阴阳小球黑");
+        this.yangEye = slidingTrack.getChildByName("阴阳小球白");
+    }
 });

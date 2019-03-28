@@ -24,6 +24,11 @@ cc.Class({
             default: null,
             type: cc.Node
         },
+
+        scoreDisplay: {
+            default: null,
+            type: cc.Label
+        },
         
         halo:{
             default: null,
@@ -65,11 +70,15 @@ cc.Class({
         this.beginTempoCount = false;
         this.tempoCount = 0;
         this.loadMusicAndTempo();
+
+        //得分
+        this.score = 0;
         
     },
 
     start () {
         this.deltaTime = 0;
+        this.haloEmergeAnimDuration = this.halo.data.getComponent(cc.Animation).defaultClip.duration;
     },
 
     update (dt) {
@@ -79,12 +88,15 @@ cc.Class({
             this.musicLoaded = false;
         }
 
+        //随音乐节拍生成光环并计分
         if (this.beginTempoCount) {
             this.deltaTime += dt;
-            if (this.deltaTime >= this.tempo[this.tempoCount]) {
+            if (this.deltaTime >= this.tempo[this.tempoCount] - this.haloEmergeAnimDuration) {
                 var pos = this.slidingTrackScript.generateRamdomHaloPositon();
                 var halo = cc.instantiate(this.halo);
                 halo.parent = this.node;
+                halo.getComponent("Halo").setSlidingTrack(this.slidingTrack);
+                halo.getComponent("Halo").game = this;
 
                 var rand = Math.random();
                 if (rand < 0.5) {
@@ -99,6 +111,11 @@ cc.Class({
                 this.beginTempoCount = false;
             }
         }
+    },
+
+    gainScore () {
+        this.score += 1;
+        this.scoreDisplay.string = 'Score: ' + this.score;
     },
 
     loadMusicAndTempo () {

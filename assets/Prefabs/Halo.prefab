@@ -315,6 +315,7 @@
       "__id__": 1
     },
     "_enabled": true,
+    "tempoDetectOffect": 10,
     "_id": ""
   },
   {

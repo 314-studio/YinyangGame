@@ -1,19 +1,4 @@
 {
-  "android-instant": {
-    "REMOTE_SERVER_ROOT": "",
-    "host": "",
-    "pathPattern": "",
-    "recordPath": "",
-    "scheme": "https",
-    "skipRecord": false
-  },
-  "appBundle": false,
-  "baidugame": {
-    "REMOTE_SERVER_ROOT": "",
-    "appid": "testappid",
-    "orientation": "portrait",
-    "subContext": ""
-  },
   "encryptJs": true,
   "excludeScenes": [],
   "fb-instant-games": {},
@@ -45,5 +30,12 @@
     "subContext": ""
   },
   "xxteaKey": "63a72a7a-0174-4d",
-  "zipCompressJs": true
+  "zipCompressJs": true,
+  "includeAnySDK": false,
+  "oauthLoginServer": "",
+  "appKey": "",
+  "appSecret": "",
+  "privateKey": "",
+  "jailbreakPlatform": false,
+  "renderMode": "0"
 }

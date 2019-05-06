@@ -14,7 +14,8 @@ cc.Class({
 
     properties: {
         debug: true,
-        forceCoef: 5
+        forceCoef: 5,
+        resistance: 5
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -22,6 +23,8 @@ cc.Class({
     onLoad () {
         this.yinForce = 0;
         this.yangForce = 0;
+        this.yinAttraction = 0;
+        this.yangAttraction = 0;
 
         this.combinedForce = 0;
         
@@ -41,16 +44,21 @@ cc.Class({
         }
 
         this.combinedForce = this.yinForce + this.yangForce;
+        this.attraction = this.yangAttraction + this.yinAttraction;
 
+        //实现小球被推走的效果
         var x = this.node.getPosition().x;
-        x += this.combinedForce * dt * this.forceCoef;
+        x += this.combinedForce * dt * this.forceCoef + this.attraction * dt;
         this.node.setPosition(x, this.node.getPosition().y);
 
-        if (this.combinedForce == 0 && this.awayFromEye) {
-            var h = this.node.getPosition().x;
-            h -= this.node.getPosition().x * dt * this.forceCoef;
-            this.node.setPosition(h, this.node.getPosition().y);
-        }
+        //当小球不受力时使其回到中心
+        // if (this.combinedForce == 0 && this.awayFromEye) {
+        //     var h = this.node.getPosition().x;
+        //     h -= this.node.getPosition().x * dt * this.forceCoef;
+        //     this.node.setPosition(h, this.node.getPosition().y);
+        // }
+
+
     },
 
     drawDebugInfo () {
@@ -92,5 +100,13 @@ cc.Class({
 
     applyYangForce (force) {
         this.yangForce = force;
+    },
+
+    applyYinAttraction (attraction) {
+        this.yinAttraction = attraction;
+    },
+    
+    applyYangAttraction (attraction) {
+        this.yangAttraction = attraction;
     }
 });

@@ -37,6 +37,8 @@ cc.Class({
 
         velocityMapping: true,
 
+        difficulty: 'D',
+
         distanceMappingCoef: 5
     },
 
@@ -82,12 +84,15 @@ cc.Class({
     },
 
     update (dt) {
-        if (this.musicLoaded) {
-            this.audioID = cc.audioEngine.play(this.music, false, 1);
-            this.beginTempoCount = true;
-            this.musicLoaded = false;
-        }
+        // if (this.musicLoaded) {
+        //     this.audioID = cc.audioEngine.play(this.music, false, 1);
+        //     this.beginTempoCount = true;
+        //     this.musicLoaded = false;
+        // }
+        // this.generateHalo();
+    },
 
+    generateHalo () {
         //随音乐节拍生成光环并计分
         if (this.beginTempoCount) {
             this.deltaTime += dt;
@@ -120,7 +125,7 @@ cc.Class({
 
     loadMusicAndTempo () {
         let self = this;
-        cc.loader.loadRes('Musics/Disfigure', cc.AudioClip, function (err, music) {
+        cc.loader.loadRes('Musics/Limousine', cc.AudioClip, function (err, music) {
             if (err) {
                 cc.error(err);
                 return;
@@ -128,10 +133,28 @@ cc.Class({
             self.music = music;
             self.musicLoaded = true;
         });
-        cc.loader.loadRes('Json/Disfigure', function (err, tempo) {
-            var test_tempo = new Array(tempo.json.length);
-            for (var i = 0; i < tempo.json.length; i++) {
-                test_tempo[i] = parseFloat(tempo.json[i]);
+        cc.loader.loadRes('Json/Limousine', function (err, tempo) {
+            var test_tempo = new Array();
+            switch(self.difficulty) {
+                case "D":
+                    for (var i = 0; i < tempo.length; i++) {
+                        if (tempo[i][1] == self.difficulty) {
+                            test_tempo.push(tempo[i][0]);
+                        }
+                    }
+                    break;
+                case "A":
+                    for (var i = 0; i < tempo.length; i++) {
+                        if (tempo[i][1] != "S" ) {
+                            test_tempo.push(tempo[i][0]);
+                        }
+                    }
+                    break;
+                case "S":
+                    for (var i = 0; i < tempo.length; i++) {
+                        test_tempo.push(tempo[i][0]);
+                    }
+                    break;
             }
             self.tempo = test_tempo;
         });

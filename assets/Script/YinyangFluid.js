@@ -37,6 +37,10 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
+        this.moving = true;
+        this.yangLastX = 160;
+        this.yinLastX = 0;
+
         this.windowsSize = cc.winSize;
         this.jointAmount = Math.round(this.windowsSize.height / this.subdivisionLevel + 1);
         cc.log("节点数量: ", this.jointAmount);
@@ -67,29 +71,64 @@ cc.Class({
     },
 
     update (dt) {
-        //cc.log("阳球力：");
-        this.applyJointForce(this.yangEye, true);
-        //cc.log("阴球力：");
-        this.applyJointForce(this.yinEye, false);
+        var yangX = this.yangEye.getPosition().x;
+        var yangY = this.yangEye.getPosition().y;
+        var yinX = this.yinEye.getPosition().x;
+        var yinY = this.yinEye.getPosition().y;
+        if (yangX != this.yangLastX) {
+            this.yangSpeed = Math.abs(yangX - this.yangLastX);
+            this.yinSpeed = Math.abs(yinX - this.yinLastX);
+            this.yangLastX = yangX;
+            this.yinLastX = yinX;
+            
+            var yangHeading = yangY - this.yangLastY;
+            var yinHeading = yinY - this.yinLastY;
+            if (yangHeading < 0) {
+                this.yangUp = false;
+            } else {
+                this.yangUp = true;
+            }
+            if (yinHeading < 0) {
+                this.yinUp = false;
+            } else {
+                this.yinUp = true;
+            }
+            cc.log(this.yangSpeed, "heading Up?", this.yangUp);
+        } else {
+            this.yangLastY = yangY;
+            this.yinLastY = yinY;
+            this.yangLastX = yangX;
+            this.yinLastX = yinX;
+        }
+
+        if (this.moving) {
+            //cc.log("阳球力：");
+            this.applyJointForce(this.yangEye, true, this.yangSpeed);
+            //cc.log("阴球力：");
+            this.applyJointForce(this.yinEye, false, this.yinSpeed);
+
+            this.drawCurve();
+        }
 
         this.drawCurve();
     },
 
-    applyJointForce (eye, isYang) {
-        for (var i = 1; i < this.jointAmount - 1; i++) {
+    applyJointForce (eye, isYang, speed) {
+        for (var i = 0; i < this.jointAmount; i++) {
             var joint = this.joints[i];
             var jointScript = joint.getComponent("ChainJoint");
             var xOffset = joint.getPosition().x - eye.getPosition().x;
             var yOffset = joint.getPosition().y - eye.getPosition().y;
             var offset = Math.sqrt(Math.pow(xOffset, 2) + Math.pow(yOffset, 2));
 
-            var force = this.inverseFuncConstance - offset;
+            //阴阳小球推力
+            var force = this.radius - offset;
 
-            // if (offset > this.radius) {
-            //     jointScript.awayFromEye = true;
-            // } else {
-            //     jointScript.awayFromEye = false;
-            // }
+            //阴阳小球吸引力
+            var attraction = 0;
+            if (offset < this.radius + 20) {
+                attraction = speed * 10;
+            }
 
             if (force < 0) {
                 force = 0;
@@ -101,6 +140,7 @@ cc.Class({
             if (isYang) {
                 force = -force;
                 jointScript.applyYangForce(force);
+                jointScript.applyYangAttraction(attraction);
             } else {
                 jointScript.applyYinForce(force);
             }
@@ -109,6 +149,7 @@ cc.Class({
         }
     },
 
+    //画线与白色液体，黑色是背景图片
     drawCurve () {
         var points = new Array(this.jointAmount);
         for (var i = 0; i < this.jointAmount; i ++) {

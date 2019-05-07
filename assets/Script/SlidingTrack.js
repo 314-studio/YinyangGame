@@ -13,7 +13,6 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        debug: false,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -31,7 +30,7 @@ cc.Class({
     },
 
     start () {
-        if (this.debug) {
+        if (Global.debug) {
             this.drawDebugCircle();
             cc.log("parent Position: ", this.node.getPosition().x, this.node.getPosition().y);
         }
@@ -42,7 +41,7 @@ cc.Class({
     },
 
     update (dt) {
-        if (this.debug) {
+        if (Global.debug) {
             this.ctx.clear();
             this.drawDebugCircle();
             this.ctx.circle(this.yinEye.getPosition().x, this.yinEye.getPosition().y, this.radius);
@@ -52,7 +51,7 @@ cc.Class({
     },
 
     drawDebugCircle () {
-        
+
         this.ctx.circle(0, 0, this.radius);
         this.ctx.stroke();
 

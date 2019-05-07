@@ -29,7 +29,7 @@ cc.Class({
             default: null,
             type: cc.Label
         },
-        
+
         halo:{
             default: null,
             type: cc.Prefab
@@ -47,6 +47,8 @@ cc.Class({
     onLoad () {
         //初始化触摸节点
         var windowSize = cc.winSize;
+        Global.debug = this.debug;
+        Global.radius = Math.round(windowSize.height / 4);
         this.yinControlPad = cc.instantiate(this.touchPad);
         this.yangControlPad = cc.instantiate(this.touchPad);
 
@@ -75,12 +77,16 @@ cc.Class({
 
         //得分
         this.score = 0;
-        
+
     },
 
     start () {
         this.deltaTime = 0;
         this.haloEmergeAnimDuration = this.halo.data.getComponent(cc.Animation).defaultClip.duration;
+
+        if (Global.debug) {
+            this.scoreDisplay.string = Global.radius;
+        }
     },
 
     update (dt) {

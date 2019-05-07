@@ -26,7 +26,7 @@ cc.Class({
         this.isYinTouchPad = false;
         this.controlPaused = false;
         this.angle = 0;
-        this.radius = windowSize.height / 4;
+        this.radius = Global.radius;
         this.startAngle = 0;
         this.offset = 1;
 
@@ -76,6 +76,7 @@ cc.Class({
 
         //响应触摸事件
         this.node.on ('touchstart', function (event) {
+            Global.moving = true;
             this.padPressed = true;
             startY = event.getLocationY();
         }, this);
@@ -131,12 +132,14 @@ cc.Class({
         }, this);
 
         this.node.on ('touchend', function (event) {
+            //Global.moving = false;
             this.padPressed = false;
             this.delta = 0;
             this.startAngle = this.angle;
         }, this);
 
         this.node.on ('touchcancel', function (event) {
+            //Global.moving = false;
             this.padPressed = false;
             this.delta = 0;
             this.startAngle = this.angle;

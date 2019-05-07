@@ -13,52 +13,105 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        debug: true,
         forceCoef: 5,
-        resistance: 5
+        resistance: 5,
     },
 
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-        this.yinForce = 0;
-        this.yangForce = 0;
+        var labelNode = this.node.getChildByName('label');
+        labelNode.color = cc.Color.MAGENTA;
+        this.debugLabel = labelNode.getComponent(cc.Label);
+
         this.yinAttraction = 0;
         this.yangAttraction = 0;
+        this.disToYang = 0;
+        this.lastDisToYang = 0;
+        this.disToYin = 0;
+        this.lastDisToYin = 0;
 
         this.combinedForce = 0;
-        
+
         this.forceDebugLineCoef = 1;
         this.awayFromEye = false;
     },
 
     start () {
-        if (this.debug) {
+        if (Global.debug) {
             this.drawDebugInfo();
         }
     },
 
     update (dt) {
-        if (this.debug) {
+        if (Global.debug) {
             this.debugUpdate(dt);
         }
 
-        this.combinedForce = this.yinForce + this.yangForce;
-        this.attraction = this.yangAttraction + this.yinAttraction;
+        if (Global.moving) {
+            //计算节点受到的阴阳小球的推力
+            var yangForce = Global.radius - this.disToYang;
+            var yinForce = Global.radius - this.disToYin;
 
-        //实现小球被推走的效果
-        var x = this.node.getPosition().x;
-        x += this.combinedForce * dt * this.forceCoef + this.attraction * dt;
-        this.node.setPosition(x, this.node.getPosition().y);
+            if (yangForce < 0) {
+                yangForce = 0;
+            } else if (yangForce > 0) {
+                yangForce = -yangForce;
+            }
+            if (yinForce < 0) {
+                yinForce = 0;
+            }
 
-        //当小球不受力时使其回到中心
-        // if (this.combinedForce == 0 && this.awayFromEye) {
-        //     var h = this.node.getPosition().x;
-        //     h -= this.node.getPosition().x * dt * this.forceCoef;
-        //     this.node.setPosition(h, this.node.getPosition().y);
-        // }
+            // var speedYang = 0;
+            // if (this.lastDisToYang != 0) {
+            //     speedYang = this.disToYang - this.lastDisToYang;
+            //     cc.log("speedYang: " + speedYang)
+            //     this.lastDisToYang = this.disToYang;
+            // } else {
+            //     this.lastDisToYang = this.disToYang;
+            // }
+            //
+            // if (speedYang > 0) {
+            //     this.yangAttraction += Math.round(speedYang * 0.3);
+            // }
+            //
+            // if (this.yangAttraction > 30) {
+            //     this.yangAttraction = 0;
+            // }
+            //
+            // if (this.yangAttraction > 2) {
+            //     this.yangAttraction -= 2;
+            // } else {
+            //     this.yangAttraction = 0;
+            // }
+
+            this.combinedForce = yinForce + yangForce;
+            this.debugLabel.string = "disToYin: " + this.disToYin +
+                " disToYang: " + this.disToYang + " combinedForce: " +
+                this.combinedForce;
+
+            //实现小球被推走的效果
+            if (this.combinedForce != 0) {
+                var x = this.node.getPosition().x;
+                x += this.combinedForce * dt * this.forceCoef;
+                this.node.setPosition(x, this.node.getPosition().y);
+            }
+
+            //当小球不受力时使其回到中心
+            if (this.combinedForce == 0 && this.disToYang > Global.radius
+                && this.disToYin > Global.radius) {
+                var h = this.node.getPosition().x;
+                h -= this.node.getPosition().x * dt * 3;
+                this.node.setPosition(h, this.node.getPosition().y);
+            }
+        }
 
 
+    },
+
+    appendDebugMessage (message) {
+        var msg = this.debugLabel.string + " " + message;
+        this.debugLabel.string = msg;
     },
 
     drawDebugInfo () {
@@ -105,7 +158,7 @@ cc.Class({
     applyYinAttraction (attraction) {
         this.yinAttraction = attraction;
     },
-    
+
     applyYangAttraction (attraction) {
         this.yangAttraction = attraction;
     }

@@ -76,6 +76,11 @@ cc.Class({
 
         //响应触摸事件
         this.node.on ('touchstart', function (event) {
+            if (!Global.gameStarted) {
+                Global.gameStarted = true;
+                this.slidingTrack.getComponent("SlidingTrack").playOpeningAnimation(false);
+            }
+
             Global.moving = true;
             this.padPressed = true;
             startY = event.getLocationY();

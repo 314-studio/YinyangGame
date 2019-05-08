@@ -1,12 +1,14 @@
 {
-  "ver": "1.0.0",
+  "ver": "2.3.0",
   "uuid": "9c88fef1-1c42-45a9-ba0e-e6cd3b161273",
   "type": "sprite",
   "wrapMode": "clamp",
   "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "platformSettings": {},
   "subMetas": {
     "阴阳小球黑": {
-      "ver": "1.0.3",
+      "ver": "1.0.4",
       "uuid": "84665f10-052e-4fd7-b868-8119aa1ec95a",
       "rawTextureUuid": "9c88fef1-1c42-45a9-ba0e-e6cd3b161273",
       "trimType": "auto",

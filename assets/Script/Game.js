@@ -58,8 +58,10 @@ cc.Class({
         this.yinControlPad.setPosition(-windowSize.width / 4, 0);
         this.yangControlPad.setPosition(windowSize.width / 4, 0);
 
-        cc.log("右触摸节点x位置：", this.yangControlPad.getPosition().x, this.yangControlPad.getPosition().y);
-        cc.log("右触摸节点大小：", this.yangControlPad.width, this.yangControlPad.height);
+        if (Global.debug) {
+            cc.log("右触摸节点x位置：", this.yangControlPad.getPosition().x, this.yangControlPad.getPosition().y);
+            cc.log("右触摸节点大小：", this.yangControlPad.width, this.yangControlPad.height);
+        }
 
         this.slidingTrackScript = this.slidingTrack.getComponent("SlidingTrack");
         this.yinControlPadScript = this.yinControlPad.getComponent("TouchPad");
@@ -103,7 +105,7 @@ cc.Class({
         if (this.beginTempoCount) {
             this.deltaTime += dt;
             if (this.deltaTime >= this.tempo[this.tempoCount] - this.haloEmergeAnimDuration) {
-                var pos = this.slidingTrackScript.generateRamdomHaloPositon();
+                var pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
                 var halo = cc.instantiate(this.halo);
                 halo.parent = this.node;
                 halo.getComponent("Halo").setSlidingTrack(this.slidingTrack);

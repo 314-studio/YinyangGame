@@ -15,6 +15,7 @@ cc.Class({
     properties: {
         forceCoef: 5,
         resistance: 5,
+        attractionCoef: 1
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -32,6 +33,7 @@ cc.Class({
         this.lastDisToYin = 0;
 
         this.combinedForce = 0;
+        this.confictMode = false;
 
         this.forceDebugLineCoef = 1;
         this.awayFromEye = false;
@@ -40,6 +42,8 @@ cc.Class({
     start () {
         if (Global.debug) {
             this.drawDebugInfo();
+        } else {
+            this.debugLabel.enabled = false;
         }
     },
 
@@ -62,33 +66,30 @@ cc.Class({
                 yinForce = 0;
             }
 
-            // var speedYang = 0;
-            // if (this.lastDisToYang != 0) {
-            //     speedYang = this.disToYang - this.lastDisToYang;
-            //     cc.log("speedYang: " + speedYang)
-            //     this.lastDisToYang = this.disToYang;
-            // } else {
-            //     this.lastDisToYang = this.disToYang;
-            // }
-            //
-            // if (speedYang > 0) {
-            //     this.yangAttraction += Math.round(speedYang * 0.3);
-            // }
-            //
-            // if (this.yangAttraction > 30) {
-            //     this.yangAttraction = 0;
-            // }
-            //
-            // if (this.yangAttraction > 2) {
-            //     this.yangAttraction -= 2;
-            // } else {
-            //     this.yangAttraction = 0;
-            // }
+            if (yangForce != 0 && yinForce != 0) {
+                this.confictMode = true;
+            }
+
+            if (yangForce == 0 && yinForce == 0 &&
+                this.disToYin == Global.radius && this.disToYang == Global.radius) {
+                    this.confictMode = true;
+                }
+
+            if (this.confictMode) {
+                if (this.disToYin > Global.radius || this.disToYang > Global.radius) {
+                    this.awayFromEye = true;
+                    this.confictMode = false;
+                }
+            }
 
             this.combinedForce = yinForce + yangForce;
-            this.debugLabel.string = "disToYin: " + this.disToYin +
-                " disToYang: " + this.disToYang + " combinedForce: " +
-                this.combinedForce;
+
+            if (Global.debug) {
+                this.debugLabel.string = "disToYin: " + this.disToYin +
+                    " disToYang: " + this.disToYang + " yangForce: " +
+                    yangForce + " yinForce: " + yinForce + " confictMode: " +
+                    this.confictMode + " awayFromEye: " + this.awayFromEye;
+            }
 
             //实现小球被推走的效果
             if (this.combinedForce != 0) {
@@ -99,10 +100,16 @@ cc.Class({
 
             //当小球不受力时使其回到中心
             if (this.combinedForce == 0 && this.disToYang > Global.radius
-                && this.disToYin > Global.radius) {
+                && this.disToYin > Global.radius || this.awayFromEye) {
                 var h = this.node.getPosition().x;
-                h -= this.node.getPosition().x * dt * 3;
+                h -= this.node.getPosition().x * dt * this.attractionCoef;
                 this.node.setPosition(h, this.node.getPosition().y);
+            }
+
+            if (this.awayFromEye) {
+                if (this.disToYang > Global.radius && this.disToYin > Global.radius) {
+                    this.awayFromEye = false;
+                }
             }
         }
 
@@ -125,16 +132,7 @@ cc.Class({
         ctx.clear();
 
         this.drawDebugInfo();
-        // ctx.moveTo(0, 0);
-        // ctx.strokeColor = cc.Color.BLACK;
-        // ctx.lineTo(this.yinForce * this.forceDebugLineCoef, 0);
-        // ctx.stroke();
-
-        // ctx.moveTo(0, 0)
-        // ctx.strokeColor = cc.Color.WHITE;
-        // ctx.lineTo(this.yangForce * this.forceDebugLineCoef, 0);
-        // ctx.stroke();
-
+        
         ctx.moveTo(0, 0);
         if (this.combinedForce > 0) {
             ctx.strokeColor = cc.Color.RED;

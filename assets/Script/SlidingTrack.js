@@ -13,6 +13,9 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        openingAnimRadius: 10,
+        openingAnimSmoothness: 1,
+        openingAnimDuration: 0.5
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -23,9 +26,6 @@ cc.Class({
 
         this.maxAngle = 85 * Math.PI / 180;
 
-        var windowSize = cc.winSize;
-        this.radius = windowSize.height / 4;
-
         this.ctx = this.getComponent(cc.Graphics);
     },
 
@@ -34,35 +34,91 @@ cc.Class({
             this.drawDebugCircle();
             cc.log("parent Position: ", this.node.getPosition().x, this.node.getPosition().y);
         }
-        this.yangEye.setPosition(this.radius, 0);
-        this.yinEye.setPosition(-this.radius, 0);
+        this.yangEye.setPosition(Global.radius, 0);
+        this.yinEye.setPosition(-Global.radius, 0);
 
         //cc.log("新的位置",this.generateRamdomHaloPositon());
+
+        this.initActions();
+
+        this.playOpeningAnimation(true);
     },
 
     update (dt) {
+
+
         if (Global.debug) {
             this.ctx.clear();
             this.drawDebugCircle();
-            this.ctx.circle(this.yinEye.getPosition().x, this.yinEye.getPosition().y, this.radius);
-            this.ctx.circle(this.yangEye.getPosition().x, this.yangEye.getPosition().y, this.radius);
+            this.ctx.circle(this.yinEye.getPosition().x, this.yinEye.getPosition().y, Global.radius);
+            this.ctx.circle(this.yangEye.getPosition().x, this.yangEye.getPosition().y, Global.radius);
             this.ctx.stroke();
+        }
+    },
+
+    playOpeningAnimation (enable) {
+        if (enable) {
+            this.yangEye.runAction(this.yangOpeningAction);
+            this.yinEye.runAction(this.yinOpeningAction);
+        } else {
+            this.yangEye.stopAction(this.yangOpeningAction);
+            this.yinEye.stopAction(this.yinOpeningAction);
         }
     },
 
     drawDebugCircle () {
 
-        this.ctx.circle(0, 0, this.radius);
+        this.ctx.circle(0, 0, Global.radius);
         this.ctx.stroke();
-
-
     },
 
-    generateRamdomHaloPositon () {
+    generateRamdomHaloPositon (radius) {
         var angle = Math.random() * 2 * this.maxAngle - this.maxAngle;
-        var x = Math.cos(angle) * this.radius;
-        var y = Math.sin(angle) * this.radius;
+        return this.circlePosForAngle(new cc.Vec2(0, 0), angle, radius);
+    },
+
+    circlePosForAngle (origin, angle, radius) {
+        var x = Math.cos(angle) * radius + origin.x;
+        var y = Math.sin(angle) * radius + origin.y;
+
+        cc.log(x, y)
 
         return new cc.Vec2(x, y);
+    },
+
+    initActions () {
+        this.yangOpeningAction = cc.repeatForever(
+            cc.sequence(
+                cc.moveTo(this.openingAnimDuration,
+                    this.circlePosForAngle(this.yangEye.getPosition(),
+                    1.57, this.openingAnimRadius))
+                    .easing(cc.easeSineInOut()),
+                cc.moveTo(this.openingAnimDuration,
+                    this.circlePosForAngle(this.yangEye.getPosition(),
+                    3.6, this.openingAnimRadius))
+                    .easing(cc.easeSineInOut()),
+                cc.moveTo(this.openingAnimDuration,
+                    this.circlePosForAngle(this.yangEye.getPosition(),
+                    5.76, this.openingAnimRadius))
+                    .easing(cc.easeSineInOut())
+            )
+        );
+
+        this.yinOpeningAction = cc.repeatForever(
+            cc.sequence(
+                cc.moveTo(this.openingAnimDuration,
+                    this.circlePosForAngle(this.yinEye.getPosition(),
+                    1.57, this.openingAnimRadius))
+                    .easing(cc.easeSineInOut()),
+                cc.moveTo(this.openingAnimDuration,
+                    this.circlePosForAngle(this.yinEye.getPosition(),
+                    3.6, this.openingAnimRadius))
+                    .easing(cc.easeSineInOut()),
+                cc.moveTo(this.openingAnimDuration,
+                    this.circlePosForAngle(this.yinEye.getPosition(),
+                    5.76, this.openingAnimRadius))
+                    .easing(cc.easeSineInOut())
+            )
+        );
     },
 });

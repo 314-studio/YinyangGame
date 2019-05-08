@@ -1,12 +1,14 @@
 {
-  "ver": "1.0.0",
+  "ver": "2.3.0",
   "uuid": "d9e6090f-5169-4860-b699-19e91ad7d86c",
   "type": "sprite",
   "wrapMode": "clamp",
   "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "platformSettings": {},
   "subMetas": {
     "wallhaven-629278": {
-      "ver": "1.0.3",
+      "ver": "1.0.4",
       "uuid": "e76df4fc-bfb3-41c1-918d-2d095f5e80c5",
       "rawTextureUuid": "d9e6090f-5169-4860-b699-19e91ad7d86c",
       "trimType": "auto",

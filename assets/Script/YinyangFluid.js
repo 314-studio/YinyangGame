@@ -28,8 +28,6 @@ cc.Class({
             default: null,
             type: cc.Node
         },
-
-        inverseFuncConstance: 500,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -72,36 +70,6 @@ cc.Class({
             this.setupJoints(this.yangEye, true);
             this.setupJoints(this.yinEye, false);
         }
-
-        // var yangX = this.yangEye.getPosition().x;
-        // var yangY = this.yangEye.getPosition().y;
-        // var yinX = this.yinEye.getPosition().x;
-        // var yinY = this.yinEye.getPosition().y;
-        // if (yangX != this.yangLastX) {
-        //     this.yangSpeed = Math.abs(yangX - this.yangLastX);
-        //     this.yinSpeed = Math.abs(yinX - this.yinLastX);
-        //     this.yangLastX = yangX;
-        //     this.yinLastX = yinX;
-        //
-        //     var yangHeading = yangY - this.yangLastY;
-        //     var yinHeading = yinY - this.yinLastY;
-        //     if (yangHeading < 0) {
-        //         this.yangUp = false;
-        //     } else {
-        //         this.yangUp = true;
-        //     }
-        //     if (yinHeading < 0) {
-        //         this.yinUp = false;
-        //     } else {
-        //         this.yinUp = true;
-        //     }
-        //     cc.log(this.yangSpeed, "heading Up?", this.yangUp);
-        // } else {
-        //     this.yangLastY = yangY;
-        //     this.yinLastY = yinY;
-        //     this.yangLastX = yangX;
-        //     this.yinLastX = yinX;
-        // }
 
         this.drawCurve();
     },

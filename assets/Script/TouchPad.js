@@ -78,7 +78,8 @@ cc.Class({
         this.node.on ('touchstart', function (event) {
             if (!Global.gameStarted) {
                 Global.gameStarted = true;
-                this.slidingTrack.getComponent("SlidingTrack").playOpeningAnimation(false);
+                this.slidingTrack.getComponent("SlidingTrack")
+                    .playOpeningAnimation(false);
             }
 
             Global.moving = true;

@@ -85,7 +85,7 @@
       }
     ],
     "_active": true,
-    "_level": 0,
+    "_level": 1,
     "_components": [
       {
         "__id__": 22
@@ -535,6 +535,10 @@
     "slidingTrack": {
       "__id__": 13
     },
+    "springConstant": 0.005,
+    "springConstantBaseline": 0.005,
+    "damping": 0.99,
+    "iteration": 1,
     "_id": "79dEN7AWlEdacyKf6d21wp"
   },
   {

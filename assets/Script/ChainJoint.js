@@ -15,7 +15,7 @@ cc.Class({
     properties: {
         forceCoef: 5,
         resistance: 5,
-        attractionCoef: 1
+        attractionCoef: 1,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -37,6 +37,9 @@ cc.Class({
 
         this.forceDebugLineCoef = 1;
         this.awayFromEye = false;
+
+        this.spd = 0;
+        this.mass = 1;
     },
 
     start () {
@@ -132,7 +135,7 @@ cc.Class({
         ctx.clear();
 
         this.drawDebugInfo();
-        
+
         ctx.moveTo(0, 0);
         if (this.combinedForce > 0) {
             ctx.strokeColor = cc.Color.RED;

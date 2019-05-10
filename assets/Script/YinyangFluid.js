@@ -28,6 +28,11 @@ cc.Class({
             default: null,
             type: cc.Node
         },
+
+        springConstant: 0.005,
+        springConstantBaseline: 0.005,
+        damping: 0.99,
+        iteration: 5
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -55,6 +60,19 @@ cc.Class({
         this.xForceCoef = 0.01;
         this.yForceCoef = 0.01;
         this.forceCoef = 4000;
+
+        //A phase difference to apply to each sine
+        this.offset = 0;
+        this.NUM_BACKGROUND_WAVES= 7;
+        this.BACKGROUND_WAVE_MAX_HEIGHT = 6;
+        this.BACKGROUND_WAVE_COMPRESSION = 1 / 10;
+        this.sineOffsets = [];
+        this.sineAmplitudes = [];
+        this.sineStretches = [];
+        this.offsetStretches = [];
+
+        this.X_OFFSET = 0;
+
     },
 
     start () {
@@ -63,15 +81,90 @@ cc.Class({
                  this.windowsSize.height / 2 - (i * this.windowsSize.height / (this.jointAmount - 1)));
         }
         this.ctx = this.getComponent(cc.Graphics);
+        this.backgroundWaveData();
     },
 
     update (dt) {
+        if (!Global.gameStarted) {
+            this.offset += 1;
+            this.updateWavePoints(this.joints, dt);
+        }
         if (Global.moving) {
             this.setupJoints(this.yangEye, true);
             this.setupJoints(this.yinEye, false);
         }
 
         this.drawCurve();
+    },
+
+    //开场液体动画
+    openingJointAnim () {
+    },
+
+    backgroundWaveData () {
+        for (var i = 0; i < this.NUM_BACKGROUND_WAVES; i++) {
+            var sineOffset = -Math.PI + 2 * Math.PI * Math.random();
+            this.sineOffsets.push(sineOffset);
+            var sineAmplitude = Math.random() * this.BACKGROUND_WAVE_MAX_HEIGHT;
+            this.sineAmplitudes.push(sineAmplitude);
+            var sineStretche = Math.random() * this.BACKGROUND_WAVE_COMPRESSION;
+            this.sineStretches.push(sineStretche);
+            var offsetStretche = Math.random() * this.BACKGROUND_WAVE_COMPRESSION;
+            this.offsetStretches.push(offsetStretche);
+            cc.log("backgroundWaveData: " + "sineOffset: " + sineOffset +
+                " sineAmplitude: " + sineAmplitude + " sineStretche: " +
+                sineStretche + " offsetStretche: " + offsetStretche);
+        }
+    },
+
+    overlapSines (x) {
+        var result = 0;
+        for (var i = 0; i < this.NUM_BACKGROUND_WAVES; i++) {
+            result = result + this.sineOffsets[i] +
+                this.sineAmplitudes[i] * Math.sin(x * this.sineStretches[i] +
+                this.offset * this.offsetStretches[i]);
+        }
+        return result;
+    },
+
+    updateWavePoints (points, dt) {
+        for (var i = 0; i < this.iteration; i++) {
+            for (var n = 0; n < points.length; n++) {
+                var p = points[n];
+                var pScript = p.getComponent('ChainJoint');
+                var force = 0;
+
+                var forceFromLeft, forceFromRight;
+
+                if (n == 0) {
+                    var dy = points[points.length - 1].x - p.x;
+                    forceFromLeft = this.springConstant * dy;
+                } else {
+                    var dy = points[n - 1].x - p.x;
+                    forceFromLeft = this.springConstant * dy;
+                }
+                if (n == points.length - 1) {
+                    var dy = points[0].x - p.x;
+                    forceFromRight = this.springConstant * dy;
+                } else {
+                    var dy = points[n + 1].x - p.x;
+                    forceFromRight = this.springConstant * dy;
+                }
+
+                var dy = this.X_OFFSET - p.x;
+                var forceToBaseline = this.springConstantBaseline * dy;
+
+                force += forceFromLeft + forceFromRight + forceToBaseline;
+
+                var acceleration = force / pScript.mass;
+
+                pScript.spd = this.damping * pScript.spd + acceleration;
+
+                p.x = this.overlapSines(p.y + this.windowsSize.height / 2 + pScript.spd);
+
+                cc.log("节点位置：", p.x, p.y);
+            }
+        }
     },
 
     //每帧计算每个节点与阴阳小球的距离，并将距离保存在节点中

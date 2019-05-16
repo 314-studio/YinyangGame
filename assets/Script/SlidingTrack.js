@@ -21,10 +21,10 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-        this.yangEye = this.node.getChildByName("阴阳小球白");
-        this.yinEye = this.node.getChildByName("阴阳小球黑");
+        this.yangEye = this.node.getChildByName("Yang");
+        this.yinEye = this.node.getChildByName("Yin");
 
-        this.maxAngle = 85 * Math.PI / 180;
+        this.maxAngle = 70 * Math.PI / 180;
 
         this.ctx = this.getComponent(cc.Graphics);
     },
@@ -59,7 +59,9 @@ cc.Class({
     playOpeningAnimation (enable) {
         if (enable) {
             this.yangEye.runAction(this.yangOpeningAction);
-            this.yinEye.runAction(this.yinOpeningAction);
+            this.scheduleOnce(function() {
+                this.yinEye.runAction(this.yinOpeningAction);
+            }, this.openingAnimDuration / 2);
         } else {
             this.yangEye.stopAction(this.yangOpeningAction);
             this.yinEye.stopAction(this.yinOpeningAction);
@@ -89,36 +91,56 @@ cc.Class({
     initActions () {
         this.yangOpeningAction = cc.repeatForever(
             cc.sequence(
-                cc.moveTo(this.openingAnimDuration,
-                    this.circlePosForAngle(this.yangEye.getPosition(),
-                    1.57, this.openingAnimRadius))
+                cc.moveBy(this.openingAnimDuration, cc.v2(this.openingAnimRadius, 0))
                     .easing(cc.easeSineInOut()),
-                cc.moveTo(this.openingAnimDuration,
-                    this.circlePosForAngle(this.yangEye.getPosition(),
-                    3.6, this.openingAnimRadius))
-                    .easing(cc.easeSineInOut()),
-                cc.moveTo(this.openingAnimDuration,
-                    this.circlePosForAngle(this.yangEye.getPosition(),
-                    5.76, this.openingAnimRadius))
+                cc.moveBy(this.openingAnimDuration, cc.v2(-this.openingAnimRadius, 0))
                     .easing(cc.easeSineInOut())
             )
         );
 
         this.yinOpeningAction = cc.repeatForever(
             cc.sequence(
-                cc.moveTo(this.openingAnimDuration,
-                    this.circlePosForAngle(this.yinEye.getPosition(),
-                    1.57, this.openingAnimRadius))
+                cc.moveBy(this.openingAnimDuration, cc.v2(this.openingAnimRadius, 0))
                     .easing(cc.easeSineInOut()),
-                cc.moveTo(this.openingAnimDuration,
-                    this.circlePosForAngle(this.yinEye.getPosition(),
-                    3.6, this.openingAnimRadius))
-                    .easing(cc.easeSineInOut()),
-                cc.moveTo(this.openingAnimDuration,
-                    this.circlePosForAngle(this.yinEye.getPosition(),
-                    5.76, this.openingAnimRadius))
+                cc.moveBy(this.openingAnimDuration, cc.v2(-this.openingAnimRadius, 0))
                     .easing(cc.easeSineInOut())
             )
         );
     },
+
+    // initActions () {
+    //     this.yangOpeningAction = cc.repeatForever(
+    //         cc.sequence(
+    //             cc.moveTo(this.openingAnimDuration,
+    //                 this.circlePosForAngle(this.yangEye.getPosition(),
+    //                 1.57, this.openingAnimRadius))
+    //                 .easing(cc.easeSineInOut()),
+    //             cc.moveTo(this.openingAnimDuration,
+    //                 this.circlePosForAngle(this.yangEye.getPosition(),
+    //                 3.6, this.openingAnimRadius))
+    //                 .easing(cc.easeSineInOut()),
+    //             cc.moveTo(this.openingAnimDuration,
+    //                 this.circlePosForAngle(this.yangEye.getPosition(),
+    //                 5.76, this.openingAnimRadius))
+    //                 .easing(cc.easeSineInOut())
+    //         )
+    //     );
+    //
+    //     this.yinOpeningAction = cc.repeatForever(
+    //         cc.sequence(
+    //             cc.moveTo(this.openingAnimDuration,
+    //                 this.circlePosForAngle(this.yinEye.getPosition(),
+    //                 1.57, this.openingAnimRadius))
+    //                 .easing(cc.easeSineInOut()),
+    //             cc.moveTo(this.openingAnimDuration,
+    //                 this.circlePosForAngle(this.yinEye.getPosition(),
+    //                 3.6, this.openingAnimRadius))
+    //                 .easing(cc.easeSineInOut()),
+    //             cc.moveTo(this.openingAnimDuration,
+    //                 this.circlePosForAngle(this.yinEye.getPosition(),
+    //                 5.76, this.openingAnimRadius))
+    //                 .easing(cc.easeSineInOut())
+    //         )
+    //     );
+    // },
 });

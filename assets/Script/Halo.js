@@ -49,7 +49,7 @@ cc.Class({
 
 
         if (this.hitted){
-            this.game.gainScore();
+            this.game.gainScore(this.node.y);
             this.animation.play('Halo_Hit');
             this.animation.off('finished',this.onFinished,this);
         }
@@ -61,7 +61,7 @@ cc.Class({
 
     setSlidingTrack (slidingTrack) {
         this.slidingTrack = slidingTrack;
-        this.yinEye = slidingTrack.getChildByName("阴阳小球黑");
-        this.yangEye = slidingTrack.getChildByName("阴阳小球白");
+        this.yinEye = slidingTrack.getChildByName("Yin");
+        this.yangEye = slidingTrack.getChildByName("Yang");
     }
 });

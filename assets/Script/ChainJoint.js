@@ -55,7 +55,7 @@ cc.Class({
             this.debugUpdate(dt);
         }
 
-        if (Global.moving) {
+        if (Global.gameStarted) {
             //计算节点受到的阴阳小球的推力
             var yangForce = Global.radius - this.disToYang;
             var yinForce = Global.radius - this.disToYin;
@@ -75,9 +75,10 @@ cc.Class({
 
             if (yangForce == 0 && yinForce == 0 &&
                 this.disToYin == Global.radius && this.disToYang == Global.radius) {
-                    this.confictMode = true;
-                }
+                this.confictMode = true;
+            }
 
+            //confictMode用与防止液体在小球上粘连情况的发生
             if (this.confictMode) {
                 if (this.disToYin > Global.radius || this.disToYang > Global.radius) {
                     this.awayFromEye = true;

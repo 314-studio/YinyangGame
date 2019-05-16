@@ -12,19 +12,33 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        maxZoomRatio: 1.4
     },
 
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {},
+    onLoad () {
+        this.actionZoomIned = false;
+        this.camera = this.node.getComponent(cc.Camera);
+    },
 
     start () {
 
     },
 
     update (dt) {
-        if (Global.gameStarted) {
-            
+        if (Global.gameStarted && !this.actionZoomIned) {
+            cc.tween(this.camera)
+                .to(1, {zoomRatio: this.maxZoomRatio}, { easing: 'quadInOut'})
+                .start()
+            this.actionZoomIned = true;
         }
+    },
+
+    shake () {
+        cc.tween(this.camera)
+            .to(0.1, {zoomRatio: this.maxZoomRatio + 0.1})
+            .to(0.1, {zoomRatio: this.maxZoomRatio})
+            .start()
     },
 });

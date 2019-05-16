@@ -35,6 +35,11 @@ cc.Class({
             type: cc.Prefab
         },
 
+        camera: {
+            default: null,
+            type: cc.Node
+        },
+
         velocityMapping: true,
 
         difficulty: 'D',
@@ -45,6 +50,9 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
+        var manager = cc.director.getCollisionManager();
+        manager.enabled = true;
+
         //初始化触摸节点
         var windowSize = cc.winSize;
         Global.debug = this.debug;
@@ -61,6 +69,7 @@ cc.Class({
         if (Global.debug) {
             cc.log("右触摸节点x位置：", this.yangControlPad.getPosition().x, this.yangControlPad.getPosition().y);
             cc.log("右触摸节点大小：", this.yangControlPad.width, this.yangControlPad.height);
+            manager.enabledDebugDraw = true;
         }
 
         this.slidingTrackScript = this.slidingTrack.getComponent("SlidingTrack");
@@ -80,6 +89,8 @@ cc.Class({
         //得分
         this.score = 0;
 
+        this.cameraScript = this.camera.getComponent("CameraControl");
+
     },
 
     start () {
@@ -92,15 +103,15 @@ cc.Class({
     },
 
     update (dt) {
-        // if (this.musicLoaded) {
-        //     this.audioID = cc.audioEngine.play(this.music, false, 1);
-        //     this.beginTempoCount = true;
-        //     this.musicLoaded = false;
-        // }
-        // this.generateHalo();
+        if (this.musicLoaded && Global.gameStarted) {
+            this.audioID = cc.audioEngine.play(this.music, false, 1);
+            this.beginTempoCount = true;
+            this.musicLoaded = false;
+        }
+        this.generateHalo(dt);
     },
 
-    generateHalo () {
+    generateHalo (dt) {
         //随音乐节拍生成光环并计分
         if (this.beginTempoCount) {
             this.deltaTime += dt;
@@ -126,7 +137,17 @@ cc.Class({
         }
     },
 
-    gainScore () {
+    gainScore (hittedPosY) {
+
+        // TODO: 判断平台，处理震动效果
+        // wx.vibrateShort({
+        //     success: function () {
+        //         console.log('震动成功！');
+        //     }
+        // });
+
+        this.cameraScript.shake();
+
         this.score += 1;
         this.scoreDisplay.string = 'Score: ' + this.score;
     },
@@ -142,6 +163,7 @@ cc.Class({
             self.musicLoaded = true;
         });
         cc.loader.loadRes('Json/Limousine', function (err, tempo) {
+            var tempo = tempo.json;
             var test_tempo = new Array();
             switch(self.difficulty) {
                 case "D":

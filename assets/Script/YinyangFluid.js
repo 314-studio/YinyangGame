@@ -54,8 +54,8 @@ cc.Class({
             this.joints[i] = joint;
         }
 
-        this.yangEye = this.slidingTrack.getChildByName("阴阳小球白");
-        this.yinEye = this.slidingTrack.getChildByName("阴阳小球黑");
+        this.yangEye = this.slidingTrack.getChildByName("Yang");
+        this.yinEye = this.slidingTrack.getChildByName("Yin");
 
         this.xForceCoef = 0.01;
         this.yForceCoef = 0.01;
@@ -76,11 +76,13 @@ cc.Class({
     },
 
     start () {
+        //初始化节点的位置
         for (var i = 0; i < this.jointAmount; i++) {
             this.joints[i].setPosition(0,
                  this.windowsSize.height / 2 - (i * this.windowsSize.height / (this.jointAmount - 1)));
         }
         this.ctx = this.getComponent(cc.Graphics);
+        //初始化背景波纹sine值
         this.backgroundWaveData();
     },
 
@@ -88,8 +90,7 @@ cc.Class({
         if (!Global.gameStarted) {
             this.offset += 1;
             this.updateWavePoints(this.joints, dt);
-        }
-        if (Global.moving) {
+        } else {
             this.setupJoints(this.yangEye, true);
             this.setupJoints(this.yinEye, false);
         }
@@ -97,10 +98,11 @@ cc.Class({
         this.drawCurve();
     },
 
-    //开场液体动画
-    openingJointAnim () {
+    shake (positionY) {
+        cc.log("击中点Y: " + positionY);
     },
 
+    //初始化背景波纹sine值，使用多个杂乱的正弦波来模拟水波的效果
     backgroundWaveData () {
         for (var i = 0; i < this.NUM_BACKGROUND_WAVES; i++) {
             var sineOffset = -Math.PI + 2 * Math.PI * Math.random();
@@ -117,6 +119,7 @@ cc.Class({
         }
     },
 
+    //对于给定的x，求在多个正弦波下重合的结果
     overlapSines (x) {
         var result = 0;
         for (var i = 0; i < this.NUM_BACKGROUND_WAVES; i++) {
@@ -127,6 +130,7 @@ cc.Class({
         return result;
     },
 
+    //每帧更新新的波纹的位置
     updateWavePoints (points, dt) {
         for (var i = 0; i < this.iteration; i++) {
             for (var n = 0; n < points.length; n++) {
@@ -162,14 +166,14 @@ cc.Class({
 
                 p.x = this.overlapSines(p.y + this.windowsSize.height / 2 + pScript.spd);
 
-                cc.log("节点位置：", p.x, p.y);
+                //cc.log("节点位置：", p.x, p.y);
             }
         }
     },
 
     //每帧计算每个节点与阴阳小球的距离，并将距离保存在节点中
     setupJoints (eye, isYang) {
-        for (var i = 1; i < this.jointAmount - 1; i++) {
+        for (var i = 0; i < this.jointAmount; i++) {
             var joint = this.joints[i];
             var jointScript = joint.getComponent("ChainJoint");
             var xOffset = joint.getPosition().x - eye.getPosition().x;

@@ -14,6 +14,7 @@ cc.Class({
 
     properties: {
         distanceMappingCoef: 1,
+        yinyangMinimumDistance: 30
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -30,12 +31,16 @@ cc.Class({
         this.startAngle = 0;
         this.offset = 1;
 
+        this.eyeCollided = false;
+        this.eyeCollidedPause = true;
+
         this.initEventListener();
     },
 
     start () {
-        this.yangEye = this.slidingTrack.getChildByName("阴阳小球白");
-        this.yinEye = this.slidingTrack.getChildByName("阴阳小球黑");
+        this.yangEye = this.slidingTrack.getChildByName("Yang");
+        this.yinEye = this.slidingTrack.getChildByName("Yin");
+        this.collisionScript = this.yangEye.getComponent("EyeCollisionCtrl");
 
         var temp = Math.PI / 180;
         this.angle90 = 90 * temp;
@@ -44,6 +49,8 @@ cc.Class({
     },
 
     update (dt) {
+        // TODO: 代码优化,不用每帧赋值，被动
+        this.eyeCollided = this.collisionScript.eyeCollided;
 
         //控制小球不能超过自己的区域
         if (!this.controlPaused) {
@@ -67,6 +74,14 @@ cc.Class({
                 }
             }
         }
+
+        // if (this.yangEye.x - this.yinEye.x <= this.yinyangMinimumDistance &&
+        //     Math.abs(this.yangEye.y - this.yinEye.y) <= this.yinyangMinimumDistance) {
+        //     cc.log("太近啦！！！")
+        //     //this.controlPaused = true;
+        // } else {
+        //     //this.controlPaused = false;
+        // }
     },
 
     initEventListener () {
@@ -128,6 +143,7 @@ cc.Class({
                         }
                     }
                 }
+
                 this.angle = this.startAngle + this.offset * delta / this.radius;
 
                 if (!this.controlPaused) {
@@ -138,14 +154,14 @@ cc.Class({
         }, this);
 
         this.node.on ('touchend', function (event) {
-            //Global.moving = false;
+            Global.moving = false;
             this.padPressed = false;
             this.delta = 0;
             this.startAngle = this.angle;
         }, this);
 
         this.node.on ('touchcancel', function (event) {
-            //Global.moving = false;
+            Global.moving = false;
             this.padPressed = false;
             this.delta = 0;
             this.startAngle = this.angle;

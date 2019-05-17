@@ -67,8 +67,10 @@ cc.Class({
         this.yangControlPad.setPosition(windowSize.width / 4, 0);
 
         if (Global.debug) {
-            cc.log("右触摸节点x位置：", this.yangControlPad.getPosition().x, this.yangControlPad.getPosition().y);
-            cc.log("右触摸节点大小：", this.yangControlPad.width, this.yangControlPad.height);
+            cc.log("右触摸节点x位置：", this.yangControlPad.getPosition().x,
+                this.yangControlPad.getPosition().y);
+            cc.log("右触摸节点大小：", this.yangControlPad.width,
+                this.yangControlPad.height);
             manager.enabledDebugDraw = true;
         }
 
@@ -84,16 +86,16 @@ cc.Class({
         this.musicLoaded = false;
         this.beginTempoCount = false;
         this.tempoCount = 0;
-        this.loadMusicAndTempo();
+        this.loadMusicAndTempo(this.difficulty);
+        this.songEnded = false;
 
         //得分
         this.score = 0;
-
         this.cameraScript = this.camera.getComponent("CameraControl");
-
     },
 
     start () {
+        cc.log(cc.sys.dump());
         this.deltaTime = 0;
         this.haloEmergeAnimDuration = this.halo.data.getComponent(cc.Animation).defaultClip.duration;
 
@@ -104,35 +106,59 @@ cc.Class({
 
     update (dt) {
         if (this.musicLoaded && Global.gameStarted) {
+            this.songEnded = false;
             this.audioID = cc.audioEngine.play(this.music, false, 1);
             this.beginTempoCount = true;
             this.musicLoaded = false;
         }
         this.generateHalo(dt);
+
+        if (this.songEnded) {
+            this.loadMusicAndTempo("A");
+        }
     },
 
     generateHalo (dt) {
-        //随音乐节拍生成光环并计分
+        //随音乐节拍生成光环
         if (this.beginTempoCount) {
             this.deltaTime += dt;
             if (this.deltaTime >= this.tempo[this.tempoCount] - this.haloEmergeAnimDuration) {
-                var pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
-                var halo = cc.instantiate(this.halo);
-                halo.parent = this.node;
-                halo.getComponent("Halo").setSlidingTrack(this.slidingTrack);
-                halo.getComponent("Halo").game = this;
+                if (this.songEnded) {
+                    this.beginTempoCount = false;
+                    let haloH  = cc.instantiate(this.halo);
+                    let haloL = cc.instantiate(this.halo);
+                    haloH.parent = this.node;
+                    haloL.parent = this.node;
+                    haloH.getComponent("Halo").setSlidingTrack(this.slidingTrack);
+                    haloL.getComponent("Halo").setSlidingTrack(this.slidingTrack);
+                    haloH.getComponent("Halo").game = this;
+                    haloL.getComponent("Halo").game = this;
 
-                var rand = Math.random();
-                if (rand < 0.5) {
-                    halo.setPosition(pos);
+                    haloH.setPosition(0, Global.radius);
+                    haloL.setPosition(0, -Global.radius);
+
+                    //歌曲最后的两个环出现，重置经过时间
+                    this.deltaTime = 0;
                 } else {
-                    halo.setPosition(-pos.x, pos.y);
+                    let pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
+                    let halo = cc.instantiate(this.halo);
+                    halo.parent = this.node;
+                    halo.getComponent("Halo").setSlidingTrack(this.slidingTrack);
+                    halo.getComponent("Halo").game = this;
+
+                    var rand = Math.random();
+                    if (rand < 0.5) {
+                        halo.setPosition(pos);
+                    } else {
+                        halo.setPosition(-pos.x, pos.y);
+                    }
+                    this.tempoCount++;
                 }
-                this.tempoCount++;
             }
 
             if (this.tempoCount == this.tempo.length - 1) {
-                this.beginTempoCount = false;
+                this.songEnded = true;
+                //this.beginTempoCount = false;
             }
         }
     },
@@ -140,11 +166,13 @@ cc.Class({
     gainScore (hittedPosY) {
 
         // TODO: 判断平台，处理震动效果
-        // wx.vibrateShort({
-        //     success: function () {
-        //         console.log('震动成功！');
-        //     }
-        // });
+        if (cc.sys.isMobile) {
+            wx.vibrateShort({
+                success: function () {
+                    console.log('震动成功！');
+                }
+            });
+        }
 
         this.cameraScript.shake();
 
@@ -152,7 +180,7 @@ cc.Class({
         this.scoreDisplay.string = 'Score: ' + this.score;
     },
 
-    loadMusicAndTempo () {
+    loadMusicAndTempo (difficulty) {
         let self = this;
         cc.loader.loadRes('Musics/Limousine', cc.AudioClip, function (err, music) {
             if (err) {
@@ -165,7 +193,7 @@ cc.Class({
         cc.loader.loadRes('Json/Limousine', function (err, tempo) {
             var tempo = tempo.json;
             var test_tempo = new Array();
-            switch(self.difficulty) {
+            switch(difficulty) {
                 case "D":
                     for (var i = 0; i < tempo.length; i++) {
                         if (tempo[i][1] == self.difficulty) {

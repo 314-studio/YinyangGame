@@ -28,17 +28,28 @@ cc.Class({
 
     update (dt) {
         if (Global.gameStarted && !this.actionZoomIned) {
-            cc.tween(this.camera)
-                .to(1, {zoomRatio: this.maxZoomRatio}, { easing: 'quadInOut'})
-                .start()
-            this.actionZoomIned = true;
+            //this.zoomIn();
         }
+    },
+
+    zoomIn () {
+        cc.tween(this.camera)
+            .to(1, {zoomRatio: this.maxZoomRatio}, { easing: 'quadInOut'})
+            .start();
+        this.actionZoomIned = true;
     },
 
     shake () {
         cc.tween(this.camera)
             .to(0.1, {zoomRatio: this.maxZoomRatio + 0.1})
             .to(0.1, {zoomRatio: this.maxZoomRatio})
-            .start()
+            .start();
+    },
+
+    zoomOut () {
+        cc.tween(this.camera)
+            .to(1, {zoomRatio: 1}, {easing: 'quadInOut'})
+            .start();
+        this.actionZoomIned = false;
     },
 });

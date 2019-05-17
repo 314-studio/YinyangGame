@@ -32,7 +32,8 @@ cc.Class({
     start () {
         if (Global.debug) {
             this.drawDebugCircle();
-            cc.log("parent Position: ", this.node.getPosition().x, this.node.getPosition().y);
+            cc.log("parent Position: ", this.node.getPosition().x,
+                this.node.getPosition().y);
         }
         this.yangEye.setPosition(Global.radius, 0);
         this.yinEye.setPosition(-Global.radius, 0);
@@ -50,8 +51,10 @@ cc.Class({
         if (Global.debug) {
             this.ctx.clear();
             this.drawDebugCircle();
-            this.ctx.circle(this.yinEye.getPosition().x, this.yinEye.getPosition().y, Global.radius);
-            this.ctx.circle(this.yangEye.getPosition().x, this.yangEye.getPosition().y, Global.radius);
+            this.ctx.circle(this.yinEye.getPosition().x,
+                this.yinEye.getPosition().y, Global.radius);
+            this.ctx.circle(this.yangEye.getPosition().x,
+                this.yangEye.getPosition().y, Global.radius);
             this.ctx.stroke();
         }
     },
@@ -64,6 +67,7 @@ cc.Class({
             }, this.openingAnimDuration / 2);
         } else {
             this.yangEye.stopAction(this.yangOpeningAction);
+            this.unscheduleAllCallbacks();  //动作未开始的话停止定时任务
             this.yinEye.stopAction(this.yinOpeningAction);
         }
     },
@@ -83,7 +87,7 @@ cc.Class({
         var x = Math.cos(angle) * radius + origin.x;
         var y = Math.sin(angle) * radius + origin.y;
 
-        cc.log(x, y)
+        //cc.log(x, y)
 
         return new cc.Vec2(x, y);
     },

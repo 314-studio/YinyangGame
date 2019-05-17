@@ -73,10 +73,20 @@ cc.Class({
 
         this.X_OFFSET = 0;
 
+        //曲线弯曲度，次方
+        this.curveDegree = 2;
+
+        //过场(cutscene)动画相关
+        this.cutsceneAnimPlaying = true;
+        this.eachBorderJointAmount = 3;
+        this.initCutsceneJoint();
+        this.cutsceenPointAnimDuration = 4;
+        this.bSplineOffset = 30;
     },
 
     start () {
-        //初始化节点的位置
+        this.bSplineOffsetM = Math.cos(Math.PI * 45 / 180) * this.bSplineOffset;
+        //初始化受力节点的位置与渲染用节点
         for (var i = 0; i < this.jointAmount; i++) {
             this.joints[i].setPosition(0,
                  this.windowsSize.height / 2 - (i * this.windowsSize.height / (this.jointAmount - 1)));
@@ -84,6 +94,8 @@ cc.Class({
         this.ctx = this.getComponent(cc.Graphics);
         //初始化背景波纹sine值
         this.backgroundWaveData();
+
+        this.playCutsenceAnim();
     },
 
     update (dt) {
@@ -96,6 +108,7 @@ cc.Class({
         }
 
         this.drawCurve();
+        this.drawDebugInfo();
     },
 
     shake (positionY) {
@@ -187,6 +200,46 @@ cc.Class({
         }
     },
 
+    initCutsceneJoint () {
+        //从左下角开始顺时针构建节点
+        var halfWindowWidth = this.windowsSize.width / 2;
+        var halfWindowHeight = this.windowsSize.height / 2;
+        this.whiteBorderJoints = new Array(
+            cc.v2(-halfWindowWidth, -halfWindowHeight),
+            cc.v2(-halfWindowWidth, 0),
+            cc.v2(-halfWindowWidth, halfWindowHeight),
+        );
+        this.blackBorderJoints = new Array(
+            cc.v2(halfWindowWidth, halfWindowHeight),
+            cc.v2(halfWindowWidth, 0),
+            cc.v2(halfWindowWidth, -halfWindowHeight),
+        );
+    },
+
+    playCutsenceAnim () {
+        var middlePPP = this.slidingTrack.getComponent("SlidingTrack")
+            .circlePosForAngle(cc.v2(0, 0), 45 * Math.PI / 180, Global.radius * 2);
+        middlePPP = cc.v2(middlePPP.x + this.bSplineOffsetM, middlePPP.y + this.bSplineOffsetM);
+        cc.tween(this.whiteBorderJoints[0])
+            .to(this.cutsceenPointAnimDuration, {x: -middlePPP.x, y: -middlePPP.y})
+            .start();
+        cc.tween(this.whiteBorderJoints[1])
+            .to(this.cutsceenPointAnimDuration, {x: -Global.radius * 2 - this.bSplineOffset, y: 0})
+            .start();
+        cc.tween(this.whiteBorderJoints[2])
+            .to(this.cutsceenPointAnimDuration, {x: -middlePPP.x, y: middlePPP.y})
+            .start();
+        cc.tween(this.blackBorderJoints[0])
+            .to(this.cutsceenPointAnimDuration, {x: middlePPP.x, y: middlePPP.y})
+            .start();
+        cc.tween(this.blackBorderJoints[1])
+            .to(this.cutsceenPointAnimDuration, {x: Global.radius * 2 + this.bSplineOffset, y: 0})
+            .start();
+        cc.tween(this.blackBorderJoints[2])
+            .to(this.cutsceenPointAnimDuration, {x: middlePPP.x, y: -middlePPP.y})
+            .start();
+    },
+
     //画线与白色液体，黑色是背景图片
     drawCurve () {
         var points = new Array(this.jointAmount);
@@ -194,20 +247,85 @@ cc.Class({
             var joint = this.joints[i];
             points[i] = [joint.getPosition().x, joint.getPosition().y];
         }
-        var degree = 2;
+
+        //黑白阴阳边界，如果播放过场动画的话，开始实时计算边界点的位置
+        var whitePoints = new Array(this.eachBorderJointAmount + 2);
+        var blackPoints = new Array(this.eachBorderJointAmount + 2);
+        if (this.cutsceneAnimPlaying) {
+            whitePoints[0] = points[this.jointAmount - 1];
+            whitePoints[this.eachBorderJointAmount + 1] = points[0];
+            for (var i = 0; i < this.eachBorderJointAmount; i++) {
+                whitePoints[i + 1] = [this.whiteBorderJoints[i].x,
+                                      this.whiteBorderJoints[i].y];
+            }
+            blackPoints[0] = points[0];
+            blackPoints[this.eachBorderJointAmount + 1] = points[this.jointAmount - 1];
+            for (var i = 0; i < this.eachBorderJointAmount; i++) {
+                blackPoints[i + 1] = [this.blackBorderJoints[i].x,
+                                      this.blackBorderJoints[i].y];
+            }
+        }
+        var whitePointsSmooth = new Array();
+
         this.ctx.clear();
+
+        //画黑色液体
+        this.ctx.moveTo(points[this.jointAmount-1][0], points[this.jointAmount-1][1]);
+        if (this.cutsceneAnimPlaying) {
+            for (var t = 0; t < 1; t += 0.02) {
+                var point = bSpline(t, this.curveDegree, whitePoints);
+                if (t > 0) {
+                    whitePointsSmooth.push(point);
+                    this.ctx.lineTo(point[0], point[1]);
+                }
+            }
+            this.ctx.lineTo(whitePoints[whitePoints.length - 1][0], whitePoints[whitePoints.length - 1][1]);
+            for (var t = 0; t < 1; t += 0.02) {
+                var point = bSpline(t, this.curveDegree, blackPoints);
+                if (t > 0) {
+                    this.ctx.lineTo(point[0], point[1]);
+                }
+            }
+        } else {
+            for (var i = 0; i < this.eachBorderJointAmount; i++) {
+                this.ctx.lineTo(this.whiteBorderJoints[i].x, this.whiteBorderJoints[i].y);
+            }
+            this.ctx.lineTo(points[0][0], points[0][1])
+            for (var i = 0; i < this.eachBorderJointAmount; i++) {
+                this.ctx.lineTo(this.blackBorderJoints[i].x, this.blackBorderJoints[i].y);
+            }
+        }
+        this.ctx.lineTo(points[this.jointAmount-1][0], points[this.jointAmount-1][1]);
+        this.ctx.fillColor = cc.Color.BLACK;
+        this.ctx.fill();
+
+        //画白色液体及曲线
         this.ctx.moveTo(points[0][0], points[0][1]);
         for (var t = 0; t < 1; t += 0.01) {
-            var point = bSpline(t, degree, points);
+            var point = bSpline(t, this.curveDegree, points);
             //cc.log("point到底是什么？",point)
             if (t > 0) {
                 this.ctx.lineTo(point[0], point[1]);
             }
         }
         this.ctx.lineTo(points[this.jointAmount-1][0], points[this.jointAmount-1][1]);
-        this.ctx.lineTo(-this.windowsSize.width / 2, -this.windowsSize.height / 2);
-        this.ctx.lineTo(-this.windowsSize.width / 2, this.windowsSize.height / 2);
+
+        if (this.cutsceneAnimPlaying) {
+            for (var i = 0; i < whitePointsSmooth.length; i++) {
+                this.ctx.lineTo(whitePointsSmooth[i][0], whitePointsSmooth[i][1]);
+            }
+        } else {
+            for (var i = 0; i < this.eachBorderJointAmount; i++) {
+                this.ctx.lineTo(this.whiteBorderJoints[i].x, this.whiteBorderJoints[i].y);
+            }
+        }
         this.ctx.lineTo(points[0][0], points[0][1]);
+        this.ctx.fillColor = cc.Color.WHITE;
         this.ctx.fill();
+    },
+
+    drawDebugInfo () {
+        this.ctx.circle(0, 0, Global.radius * 2);
+        this.ctx.stroke();
     },
 });

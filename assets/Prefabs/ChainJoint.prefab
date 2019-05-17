@@ -218,7 +218,7 @@
     "_enabled": true,
     "forceCoef": 8,
     "resistance": 5,
-    "attractionCoef": 8,
+    "attractionCoef": 1,
     "_id": ""
   },
   {

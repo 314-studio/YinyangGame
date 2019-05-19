@@ -448,6 +448,7 @@
     "springConstantBaseline": 0.005,
     "damping": 0.99,
     "iteration": 1,
+    "borderKnotAmount": 40,
     "_id": "79dEN7AWlEdacyKf6d21wp"
   },
   {
@@ -931,6 +932,9 @@
     },
     "halo": {
       "__uuid__": "5498437b-5e4b-4974-9669-1b574bb0695d"
+    },
+    "yinyangFluid": {
+      "__id__": 8
     },
     "camera": {
       "__id__": 5

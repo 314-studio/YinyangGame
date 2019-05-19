@@ -28,7 +28,7 @@ cc.Class({
 
     update (dt) {
         if (Global.gameStarted && !this.actionZoomIned) {
-            //this.zoomIn();
+            this.zoomIn();
         }
     },
 
@@ -48,8 +48,32 @@ cc.Class({
 
     zoomOut () {
         cc.tween(this.camera)
-            .to(1, {zoomRatio: 1}, {easing: 'quadInOut'})
+            .to(1, {zoomRatio: 1.0}, { easing: 'quadInOut'})
             .start();
-        this.actionZoomIned = false;
+        //this.actionZoomIned = false;
+    },
+
+    playCutsceneAnim (duration) {
+        cc.tween(this.node)
+            .to(duration, {angle: 720}, { easing: 'quadInOut'})
+            .start();
+    },
+
+    shakeLong () {
+        var points = new Array(3);
+        var shakeOffset = 10;
+        for (var i = 0; i < 3; i++) {
+            var x = Math.random() * shakeOffset;
+            var y = Math.random() * shakeOffset;
+            points[i] = [x, y];
+        }
+        var shakeDuration = 0.2;
+        cc.tween(this.node)
+            .repeat(2, cc.tween()
+            .to(shakeDuration, {x: points[0][0], y: points[0][1]})
+            .to(shakeDuration, {x: points[1][0], y: points[1][1]})
+            .to(shakeDuration, {x: points[2][0], y: points[2][1]})
+            .to(shakeDuration, {x: 0, y: 0}))
+            .start();
     },
 });

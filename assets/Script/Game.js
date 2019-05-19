@@ -35,6 +35,11 @@ cc.Class({
             type: cc.Prefab
         },
 
+        yinyangFluid: {
+            default: null,
+            type: cc.Node
+        },
+
         camera: {
             default: null,
             type: cc.Node
@@ -102,6 +107,10 @@ cc.Class({
         if (Global.debug) {
             this.scoreDisplay.string = Global.radius;
         }
+
+        // this.scheduleOnce(function() {
+        //     this.playCutsceneAnim();
+        // }, 5);
     },
 
     update (dt) {
@@ -110,11 +119,13 @@ cc.Class({
             this.audioID = cc.audioEngine.play(this.music, false, 1);
             this.beginTempoCount = true;
             this.musicLoaded = false;
+            this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = false;
         }
         this.generateHalo(dt);
 
         if (this.songEnded) {
             this.loadMusicAndTempo("A");
+            this.songEnded = false;
         }
     },
 
@@ -138,7 +149,7 @@ cc.Class({
                     haloL.setPosition(0, -Global.radius);
 
                     //歌曲最后的两个环出现，重置经过时间
-                    this.deltaTime = 0;
+                    //this.deltaTime = 0;
                 } else {
                     let pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
                     let halo = cc.instantiate(this.halo);
@@ -156,11 +167,26 @@ cc.Class({
                 }
             }
 
-            if (this.tempoCount == this.tempo.length - 1) {
-                this.songEnded = true;
-                //this.beginTempoCount = false;
+            if (this.tempoCount == this.tempo.length) {
+                //this.songEnded = true;
+                this.tempoCount = 0;
+                this.beginTempoCount = false;
+                this.playCutsceneAnim();
             }
         }
+    },
+
+    playCutsceneAnim () {
+        this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = true;
+        this.cameraScript.zoomOut();
+        cc.log("zoomOut");
+        this.cameraScript.shakeLong();
+        cc.log("shakeLong");
+        this.scheduleOnce(function() {
+            this.cameraScript.playCutsceneAnim(0.5);
+            this.deltaTime = 0;
+            this.songEnded = true;
+        }, 12);
     },
 
     gainScore (hittedPosY) {

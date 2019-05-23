@@ -27,6 +27,8 @@ cc.Class({
         this.maxAngle = 70 * Math.PI / 180;
 
         this.ctx = this.getComponent(cc.Graphics);
+
+        this.openingAnimPlaying = false;
     },
 
     start () {
@@ -61,14 +63,20 @@ cc.Class({
 
     playOpeningAnimation (enable) {
         if (enable) {
-            this.yangEye.runAction(this.yangOpeningAction);
-            this.scheduleOnce(function() {
-                this.yinEye.runAction(this.yinOpeningAction);
-            }, this.openingAnimDuration / 2);
+            if (!this.openingAnimPlaying) {
+                this.yangEye.runAction(this.yangOpeningAction);
+                this.scheduleOnce(function() {
+                    this.yinEye.runAction(this.yinOpeningAction);
+                }, this.openingAnimDuration / 2);
+                this.openingAnimPlaying = true;
+            }
         } else {
-            this.yangEye.stopAction(this.yangOpeningAction);
-            this.unscheduleAllCallbacks();  //动作未开始的话停止定时任务
-            this.yinEye.stopAction(this.yinOpeningAction);
+            if (this.openingAnimPlaying) {
+                this.yangEye.stopAction(this.yangOpeningAction);
+                this.unscheduleAllCallbacks();  //动作未开始的话停止定时任务
+                this.yinEye.stopAllActions();
+                this.openingAnimPlaying = false;
+            }
         }
     },
 
@@ -111,40 +119,4 @@ cc.Class({
             )
         );
     },
-
-    // initActions () {
-    //     this.yangOpeningAction = cc.repeatForever(
-    //         cc.sequence(
-    //             cc.moveTo(this.openingAnimDuration,
-    //                 this.circlePosForAngle(this.yangEye.getPosition(),
-    //                 1.57, this.openingAnimRadius))
-    //                 .easing(cc.easeSineInOut()),
-    //             cc.moveTo(this.openingAnimDuration,
-    //                 this.circlePosForAngle(this.yangEye.getPosition(),
-    //                 3.6, this.openingAnimRadius))
-    //                 .easing(cc.easeSineInOut()),
-    //             cc.moveTo(this.openingAnimDuration,
-    //                 this.circlePosForAngle(this.yangEye.getPosition(),
-    //                 5.76, this.openingAnimRadius))
-    //                 .easing(cc.easeSineInOut())
-    //         )
-    //     );
-    //
-    //     this.yinOpeningAction = cc.repeatForever(
-    //         cc.sequence(
-    //             cc.moveTo(this.openingAnimDuration,
-    //                 this.circlePosForAngle(this.yinEye.getPosition(),
-    //                 1.57, this.openingAnimRadius))
-    //                 .easing(cc.easeSineInOut()),
-    //             cc.moveTo(this.openingAnimDuration,
-    //                 this.circlePosForAngle(this.yinEye.getPosition(),
-    //                 3.6, this.openingAnimRadius))
-    //                 .easing(cc.easeSineInOut()),
-    //             cc.moveTo(this.openingAnimDuration,
-    //                 this.circlePosForAngle(this.yinEye.getPosition(),
-    //                 5.76, this.openingAnimRadius))
-    //                 .easing(cc.easeSineInOut())
-    //         )
-    //     );
-    // },
 });

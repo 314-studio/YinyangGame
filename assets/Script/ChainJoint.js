@@ -43,6 +43,8 @@ cc.Class({
     },
 
     start () {
+        this.gameStarted = false;
+        
         if (Global.debug) {
             this.drawDebugInfo();
         } else {
@@ -55,7 +57,7 @@ cc.Class({
             this.debugUpdate(dt);
         }
 
-        if (Global.gameStarted) {
+        if (this.gameStarted) {
             //计算节点受到的阴阳小球的推力
             var yangForce = Global.radius - this.disToYang;
             var yinForce = Global.radius - this.disToYin;
@@ -116,8 +118,6 @@ cc.Class({
                 }
             }
         }
-
-
     },
 
     appendDebugMessage (message) {

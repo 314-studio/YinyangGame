@@ -40,6 +40,9 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
+        // -- Everything inside me is dark and twisted.
+        // -- So am I.
+
         this.moving = true;
         this.yangLastX = 160;
         this.yinLastX = 0;
@@ -81,6 +84,7 @@ cc.Class({
     },
 
     start () {
+        this.gameStarted = false;
         //初始化节点的位置
         for (var i = 0; i < this.jointAmount; i++) {
             this.joints[i].setPosition(0,
@@ -94,7 +98,7 @@ cc.Class({
     },
 
     update (dt) {
-        if (!Global.gameStarted) {
+        if (!this.gameStarted) {
             this.offset += 1;
             this.updateWavePoints(this.joints, dt);
         } else {
@@ -198,6 +202,13 @@ cc.Class({
             } else {
                 jointScript.disToYin = offset;
             }
+        }
+    },
+
+    startGame () {
+        this.gameStarted = true;
+        for (var i = 0; i < this.jointAmount; i++) {
+            this.joints[i].getComponent("ChainJoint").gameStarted = true;
         }
     },
 

@@ -41,7 +41,7 @@ cc.Class({
         this.outOfBorder = false;
         this.delta = 0;
         this.stripped = false;
-        this.minimumDisengageDistance = 100;
+        this.minimumDisengageDistance = 50;
 
         var offset = 1;
         this.angle = Math.atan(this.y / this.x);

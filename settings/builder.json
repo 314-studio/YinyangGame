@@ -39,7 +39,7 @@
   "title": "Yinyang",
   "webOrientation": "landscape",
   "wechatgame": {
-    "REMOTE_SERVER_ROOT": "https://dureremote.top/download/cocos",
+    "REMOTE_SERVER_ROOT": "https://www.dureremote.top/download/cocos",
     "appid": "wx6781a4de1c383040",
     "orientation": "landscape",
     "subContext": ""

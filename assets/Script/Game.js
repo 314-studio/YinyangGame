@@ -45,6 +45,11 @@ cc.Class({
             type: cc.Node
         },
 
+        scoreBar: {
+            default: null,
+            type: cc.Node
+        },
+
         velocityMapping: true,
 
         difficulty: 'D',
@@ -57,6 +62,8 @@ cc.Class({
     onLoad () {
         var manager = cc.director.getCollisionManager();
         manager.enabled = true;
+
+        this.initUI();
 
         //初始化触摸节点
         var windowSize = cc.winSize;
@@ -85,21 +92,28 @@ cc.Class({
 
         this.yinControlPadScript.slidingTrack = this.slidingTrack;
         this.yangControlPadScript.slidingTrack = this.slidingTrack;
+        this.yinControlPadScript.game = this;
+        this.yangControlPadScript.game = this;
         this.yinControlPadScript.thisIsYinTouchPad();
 
         //加载音乐与节拍
-        this.musicLoaded = false;
+        this.levelSongLoaded = false;
         this.beginTempoCount = false;
         this.tempoCount = 0;
         this.loadMusicAndTempo(this.difficulty);
         this.songEnded = false;
+        this.lastTempo = false;
 
         //得分
         this.score = 0;
         this.cameraScript = this.camera.getComponent("CameraControl");
+
+        this.levelCount = 0;
     },
 
     start () {
+        this.gameStarted = false;
+        this.touching = false;
         cc.log(cc.sys.dump());
         this.deltaTime = 0;
         this.haloEmergeAnimDuration = this.halo.data.getComponent(cc.Animation).defaultClip.duration;
@@ -114,19 +128,42 @@ cc.Class({
     },
 
     update (dt) {
-        if (this.musicLoaded && Global.gameStarted) {
-            this.songEnded = false;
-            this.audioID = cc.audioEngine.play(this.music, false, 1);
-            this.beginTempoCount = true;
-            this.musicLoaded = false;
-            this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = false;
+        if (this.levelSongLoaded && this.gameStarted) {
+            this.startNextLevel();
+            this.levelSongLoaded = false;
         }
         this.generateHalo(dt);
 
+        //如果音乐播放结束，说明用户还没死，进入下一关
         if (this.songEnded) {
-            this.loadMusicAndTempo("A");
+            this.loadNextLevelSong();
             this.songEnded = false;
         }
+    },
+
+    startGame () {
+        // cc.tween(this.slidingTrack)
+        //     .to(1, {scale: 1.4}, { easing: 'quadInOut'})
+        //     .start();
+        // cc.tween(this.yinyangFluid)
+        //     .to(1, {scale: 1.4}, { easing: 'quadInOut'})
+        //     .start();
+    },
+
+    startNextLevel () {
+        this.audioID = cc.audioEngine.play(this.music, false, 1);
+        this.beginTempoCount = true;
+        this.yinyangFluid.getComponent("YinyangFluid").startGame();
+        this.slidingTrackScript.playOpeningAnimation(false);
+        this.levelCount++;
+    },
+
+    loadNextLevelSong () {
+        this.loadMusicAndTempo('A');
+    },
+
+    endGame () {
+        //播放结束动画与显示结束后的UI
     },
 
     generateHalo (dt) {
@@ -134,7 +171,7 @@ cc.Class({
         if (this.beginTempoCount) {
             this.deltaTime += dt;
             if (this.deltaTime >= this.tempo[this.tempoCount] - this.haloEmergeAnimDuration) {
-                if (this.songEnded) {
+                if (this.lastTempo) {
                     this.beginTempoCount = false;
                     let haloH  = cc.instantiate(this.halo);
                     let haloL = cc.instantiate(this.halo);
@@ -148,8 +185,16 @@ cc.Class({
                     haloH.setPosition(0, Global.radius);
                     haloL.setPosition(0, -Global.radius);
 
-                    //歌曲最后的两个环出现，重置经过时间
-                    //this.deltaTime = 0;
+                    this.tempoCount++;
+                    this.lastTempo = false;
+                    this.deltaTime = 0;
+                    this.tempoCount = 0;
+
+                    //歌曲最后的两个环出现，歌曲结束，停止出圈与计分
+                    if (this.levelCount != 0) {
+                        this.playCutsceneAnim();
+                    }
+                    this.beginTempoCount = false;
                 } else {
                     let pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
                     let halo = cc.instantiate(this.halo);
@@ -167,30 +212,26 @@ cc.Class({
                 }
             }
 
-            if (this.tempoCount == this.tempo.length) {
-                //this.songEnded = true;
-                this.tempoCount = 0;
-                this.beginTempoCount = false;
-                this.playCutsceneAnim();
+            if (this.tempoCount == this.tempo.length - 1) {
+                this.lastTempo = true;
             }
         }
     },
 
     playCutsceneAnim () {
         this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = true;
-        this.cameraScript.zoomOut();
-        cc.log("zoomOut");
-        this.cameraScript.shakeLong();
-        cc.log("shakeLong");
         this.scheduleOnce(function() {
-            this.cameraScript.playCutsceneAnim(0.5);
+            this.cameraScript.shakeLong();
+        }, 1);
+        this.scheduleOnce(function() {
+            this.cameraScript.rotate(20);
             this.deltaTime = 0;
+            //todo: 音乐结束的时间问题
             this.songEnded = true;
         }, 12);
     },
 
     gainScore (hittedPosY) {
-
         // TODO: 判断平台，处理震动效果
         if (cc.sys.isMobile) {
             wx.vibrateShort({
@@ -203,7 +244,7 @@ cc.Class({
         this.cameraScript.shake();
 
         this.score += 1;
-        this.scoreDisplay.string = 'Score: ' + this.score;
+        this.scoreDisplay.string = this.score;
     },
 
     loadMusicAndTempo (difficulty) {
@@ -214,7 +255,7 @@ cc.Class({
                 return;
             }
             self.music = music;
-            self.musicLoaded = true;
+            self.levelSongLoaded = true;
         });
         cc.loader.loadRes('Json/Limousine', function (err, tempo) {
             var tempo = tempo.json;
@@ -242,5 +283,9 @@ cc.Class({
             }
             self.tempo = test_tempo;
         });
+    },
+
+    initUI () {
+        
     },
 });

@@ -50,7 +50,7 @@ cc.Class({
 
     update (dt) {
         // TODO: 代码优化,不用每帧赋值，被动
-        this.eyeCollided = this.collisionScript.eyeCollided;
+        //this.eyeCollided = this.collisionScript.eyeCollided;
 
         //控制小球不能超过自己的区域
         if (!this.controlPaused) {
@@ -91,13 +91,10 @@ cc.Class({
 
         //响应触摸事件
         this.node.on ('touchstart', function (event) {
-            if (!Global.gameStarted) {
-                Global.gameStarted = true;
-                this.slidingTrack.getComponent("SlidingTrack")
-                    .playOpeningAnimation(false);
+            if (!this.game.gameStarted) {
+                this.game.gameStarted = true;
             }
-
-            Global.moving = true;
+            this.game.touching = true;
             this.padPressed = true;
             startY = event.getLocationY();
         }, this);
@@ -154,14 +151,14 @@ cc.Class({
         }, this);
 
         this.node.on ('touchend', function (event) {
-            Global.moving = false;
+            this.game.touching = false;
             this.padPressed = false;
             this.delta = 0;
             this.startAngle = this.angle;
         }, this);
 
         this.node.on ('touchcancel', function (event) {
-            Global.moving = false;
+            this.game.touching = false;
             this.padPressed = false;
             this.delta = 0;
             this.startAngle = this.angle;

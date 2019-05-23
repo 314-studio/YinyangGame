@@ -27,9 +27,9 @@ cc.Class({
     },
 
     update (dt) {
-        if (Global.gameStarted && !this.actionZoomIned) {
-            this.zoomIn();
-        }
+        // if (Global.gameStarted && !this.actionZoomIned) {
+        //     this.zoomIn();
+        // }
     },
 
     zoomIn () {
@@ -41,7 +41,7 @@ cc.Class({
 
     shake () {
         cc.tween(this.camera)
-            .to(0.1, {zoomRatio: this.maxZoomRatio + 0.1})
+            .to(0.1, {zoomRatio: this.maxZoomRatio + 1})
             .to(0.1, {zoomRatio: this.maxZoomRatio})
             .start();
     },
@@ -53,7 +53,7 @@ cc.Class({
         //this.actionZoomIned = false;
     },
 
-    playCutsceneAnim (duration) {
+    rotate (duration) {
         cc.tween(this.node)
             .to(duration, {angle: 720}, { easing: 'quadInOut'})
             .start();
@@ -67,11 +67,11 @@ cc.Class({
             var y = Math.random() * shakeOffset;
             points[i] = [x, y];
         }
-        var shakeDuration = 0.2;
+        var shakeDuration = 0.1;
         cc.tween(this.node)
-            .repeat(2, cc.tween()
+            .repeat(20, cc.tween()
             .to(shakeDuration, {x: points[0][0], y: points[0][1]})
-            .to(shakeDuration, {x: points[1][0], y: points[1][1]})
+            .to(shakeDuration, {x: -points[1][0], y: -points[1][1]})
             .to(shakeDuration, {x: points[2][0], y: points[2][1]})
             .to(shakeDuration, {x: 0, y: 0}))
             .start();

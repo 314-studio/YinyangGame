@@ -45,7 +45,7 @@ cc.Class({
             type: cc.Node
         },
 
-        scoreBar: {
+        progressBar: {
             default: null,
             type: cc.Node
         },
@@ -116,7 +116,8 @@ cc.Class({
         this.touching = false;
         cc.log(cc.sys.dump());
         this.deltaTime = 0;
-        this.haloEmergeAnimDuration = this.halo.data.getComponent(cc.Animation).defaultClip.duration;
+        // this.haloEmergeAnimDuration = this.halo.data.getComponent(cc.Animation).defaultClip.duration;
+        this.haloEmergeAnimDuration = 1.3;
 
         if (Global.debug) {
             this.scoreDisplay.string = Global.radius;
@@ -156,6 +157,7 @@ cc.Class({
         this.yinyangFluid.getComponent("YinyangFluid").startGame();
         this.slidingTrackScript.playOpeningAnimation(false);
         this.levelCount++;
+        this.progressBar.getComponent("ProgressBar").bulidProgressBar(this.tempo.length);
     },
 
     loadNextLevelSong () {
@@ -199,14 +201,17 @@ cc.Class({
                     let pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
                     let halo = cc.instantiate(this.halo);
                     halo.parent = this.node;
-                    halo.getComponent("Halo").setSlidingTrack(this.slidingTrack);
-                    halo.getComponent("Halo").game = this;
+                    var haloScript = halo.getComponent("Halo");
+                    haloScript.setSlidingTrack(this.slidingTrack);
+                    haloScript.game = this;
 
                     var rand = Math.random();
                     if (rand < 0.5) {
                         halo.setPosition(pos);
+                        haloScript.play(true);
                     } else {
                         halo.setPosition(-pos.x, pos.y);
+                        haloScript.play(false);
                     }
                     this.tempoCount++;
                 }

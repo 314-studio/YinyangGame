@@ -42,7 +42,7 @@
     "REMOTE_SERVER_ROOT": "https://www.dureremote.top/download/cocos",
     "appid": "wx6781a4de1c383040",
     "orientation": "landscape",
-    "subContext": ""
+    "subContext": "wechat_open_data"
   },
   "xxteaKey": "63a72a7a-0174-4d",
   "zipCompressJs": true

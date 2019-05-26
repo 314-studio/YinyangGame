@@ -50,6 +50,16 @@ cc.Class({
             type: cc.Node
         },
 
+        touchPadNode: {
+            default: null,
+            type: cc.Node
+        },
+
+        wechatRanking: {
+            default: null,
+            type: cc.Node
+        },
+
         velocityMapping: true,
 
         difficulty: 'D',
@@ -72,8 +82,8 @@ cc.Class({
         this.yinControlPad = cc.instantiate(this.touchPad);
         this.yangControlPad = cc.instantiate(this.touchPad);
 
-        this.yinControlPad.parent = this.parent || this.node;
-        this.yangControlPad.parent = this.parent || this.node;
+        this.yinControlPad.parent = this.touchPadNode;
+        this.yangControlPad.parent = this.touchPadNode;
 
         this.yinControlPad.setPosition(-windowSize.width / 4, 0);
         this.yangControlPad.setPosition(windowSize.width / 4, 0);
@@ -109,6 +119,7 @@ cc.Class({
         this.cameraScript = this.camera.getComponent("CameraControl");
 
         this.levelCount = 0;
+        this.progressBar.getComponent("ProgressBar").game = this;
     },
 
     start () {
@@ -116,8 +127,8 @@ cc.Class({
         this.touching = false;
         cc.log(cc.sys.dump());
         this.deltaTime = 0;
-        // this.haloEmergeAnimDuration = this.halo.data.getComponent(cc.Animation).defaultClip.duration;
-        this.haloEmergeAnimDuration = 1.3;
+        this.haloEmergeAnimDuration = this.halo.data.getComponent(cc.Animation).defaultClip.duration;
+        //this.haloEmergeAnimDuration = 1.3;
 
         if (Global.debug) {
             this.scoreDisplay.string = Global.radius;
@@ -166,6 +177,22 @@ cc.Class({
 
     endGame () {
         //播放结束动画与显示结束后的UI
+        this.gameStarted = false;
+        this.yinyangFluid.getComponent("YinyangFluid").gameStarted = false;
+        this.slidingTrackScript.resetYinyangPosition();
+        this.slidingTrackScript.playOpeningAnimation(true);
+        cc.audioEngine.stop(this.audioID);
+        this.stopGenerateHalo();
+        this.wechatRanking.getComponent("RankingView").showRanking();
+    },
+
+    stopGenerateHalo () {
+        //重置节拍计数
+        this.tempoCount++;
+        this.lastTempo = false;
+        this.deltaTime = 0;
+        this.tempoCount = 0;
+        this.beginTempoCount = false;
     },
 
     generateHalo (dt) {
@@ -187,6 +214,7 @@ cc.Class({
                     haloH.setPosition(0, Global.radius);
                     haloL.setPosition(0, -Global.radius);
 
+                    //重置节拍计数
                     this.tempoCount++;
                     this.lastTempo = false;
                     this.deltaTime = 0;
@@ -232,7 +260,7 @@ cc.Class({
             this.cameraScript.rotate(20);
             this.deltaTime = 0;
             //todo: 音乐结束的时间问题
-            this.songEnded = true;
+            //this.songEnded = true;
         }, 12);
     },
 

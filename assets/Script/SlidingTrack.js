@@ -61,6 +61,15 @@ cc.Class({
         }
     },
 
+    resetYinyangPosition () {
+        cc.tween(this.yangEye)
+            .to(1, {position: cc.v2(Global.radius, 0)}, {easing: 'quadInOut'})
+            .start();
+        cc.tween(this.yinEye)
+            .to(1, {position: cc.v2(-Global.radius, 0)}, {easing: 'quadInOut'})
+            .start();
+    },
+
     playOpeningAnimation (enable) {
         if (enable) {
             if (!this.openingAnimPlaying) {

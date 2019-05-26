@@ -69,14 +69,14 @@ cc.Class({
                 this.drip.y += this.force * dt * this.direction.y;
 
                 //阻力
-                this.force -= 0.5;
+                this.force -= 0.8;
             } else {
                 //不受力时停止移动
                 this.force = 0;
                 this.dripAnimPlaying = false;
 
                 //然后执行飞向计分条的动作
-                this.action = cc.moveTo(1, this.hitPosition);
+                this.action = cc.moveTo(0.6, this.hitPosition);
                 this.action.easing(cc.easeQuadraticActionInOut());
                 this.drip.runAction(this.action);
                 this.actionPlaying = true;
@@ -147,6 +147,7 @@ cc.Class({
             var position = this.progressBarScript.getNextBlockPosition();
             this.blockCount = this.progressBarScript.increaseBlockCount();
             this.progressBarScript.hit(false, this.isWhite, position, this.blockCount);
+            this.progressBarScript.checkFail();
             this.animation.off('finished',this.onFinished,this);
         }
     },

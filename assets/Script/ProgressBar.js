@@ -48,6 +48,7 @@ cc.Class({
         },
 
         topMargin: 20,
+        maxFailPercent: 0.2,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -56,6 +57,7 @@ cc.Class({
 
     start () {
         this.PROGRESSBAR_CENTER_OFFSET = 1;
+        this.failCount = 0;
     },
 
     bulidProgressBar (blockAmount) {
@@ -86,6 +88,13 @@ cc.Class({
     increaseBlockCount () {
         this.blockCount++;
         return this.blockCount;
+    },
+
+    checkFail () {
+        this.failCount++;
+        if (this.failCount / this.blockAmount > this.maxFailPercent) {
+            this.game.endGame();
+        }
     },
 
     //击中后在进度条上生成进度块

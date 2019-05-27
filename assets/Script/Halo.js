@@ -32,6 +32,7 @@ cc.Class({
         this.animation.on('finished',this.onAnimEnd,this);
         this.isWhite = false;
         this.actionPlaying = false;
+        this.haloEmerged = false;
 
         // this.minimumDripMoveX = 50;
         // this.maxDripMoveY = Global.radius;
@@ -41,6 +42,8 @@ cc.Class({
 
         this.ANGLE90 = Math.PI * 90 / 180;
         this.ANGLE45 = Math.PI * 45 / 180;
+
+        this.enableHitByClick = true;
     },
 
     start () {
@@ -52,7 +55,7 @@ cc.Class({
 
     update (dt) {
         //如果在水滴移动的时候，游戏结束，就自毁
-        if (!this.game.gameStarted && this.drip != null) {
+        if (!Global.gameStarted && this.drip != null) {
             this.drip.destroy();
             this.node.destroy();
         }
@@ -104,6 +107,10 @@ cc.Class({
 
     onAnimEnd (type, state) {
         if (!this.hitted) {
+            //点击方式判定时，在这里处理没点光环的问题
+            if (this.enableHitByClick) {
+                this.processHit(false);
+            }
             this.node.destroy();
         }
     },
@@ -114,50 +121,88 @@ cc.Class({
         var unitTempoDT = this.tempoDetectOffect / 3;
 
         if (xDiff <= unitTempoDT && yDiff <= unitTempoDT) {
-            this.hitted = true;
-            this.force += 200;
-            this.resistance = 2.0;
-            this.game.gainScore(3);
+            this.gainScore(3);
         } else if (xDiff <= unitTempoDT * 2 && yDiff <= unitTempoDT * 2) {
+            this.gainScore(2);
+        } else if (xDiff <= this.tempoDetectOffect && this.yDiff < this.tempoDetectOffect) {
+            this.gainScore(1);
+        }
+    },
+
+    checkHitByClick () {
+        if (this.haloEmerged) {
+            var emergeDuration = this.animState.duration;
+            var time = this.animState.time;
+            var diff = emergeDuration - this.defualtAnimDuration;
+            if (time >= this.defualtAnimDuration - diff && time <= emergeDuration) {
+                var unitDiff = diff / 3;
+                var unit = Math.abs(time - this.defualtAnimDuration);
+                if (unit <= unitDiff) {
+                    this.gainScore(3);
+                } else if (unit <= unitDiff * 2) {
+                    this.gainScore(2);
+                } else if (unit <= diff) {
+                    this.gainScore(1);
+                }
+            }
+            //如果光环出现了，但是提前点了，就判失误，该光环不再响应点击
+            //todo:添加提前点击动画
+            this.haloEmerged = false;
+            this.processHit(this.hitted);
+        }
+    },
+
+    gainScore (score) {
+        if (score == 1) {
+            this.hitted = true;
+            this.game.gainScore(1);
+        } else if (score == 2) {
             this.hitted = true;
             this.force += 100;
             this.resistance = 1.6;
             this.game.gainScore(2);
-        } else if (xDiff <= this.tempoDetectOffect && this.yDiff < this.tempoDetectOffect) {
+        } else if (score == 3) {
             this.hitted = true;
-            this.game.gainScore(1);
+            this.force += 200;
+            this.resistance = 2.0;
+            this.game.gainScore(3);
         }
     },
 
     //todo: 改事件的名字
     onFinished(type, state){
-        //依据光环与阴阳小球的距离来判断是否击中
-        var haloPos = this.node.getPosition();
-        // if (haloPos.x > 0) {
-        //     var yangPos = this.yangEye.getPosition();
-        //     if (Math.abs(haloPos.x - yangPos.x) < this.tempoDetectOffect &&
-        //         Math.abs(haloPos.y - yangPos.y) < this.tempoDetectOffect) {
-        //         this.hitted = true;
-        //         this.force += 50;
-        //     }
-        // } else {
-        //     var yinPos = this.yinEye.getPosition();
-        //     if (Math.abs(haloPos.x - yinPos.x) < this.tempoDetectOffect &&
-        //         Math.abs(haloPos.y - yinPos.y) < this.tempoDetectOffect) {
-        //         this.hitted = true;
-        //     }
-        // }
+        if (!this.enableHitByClick) {
+            //依据光环与阴阳小球的距离来判断是否击中
+            var haloPos = this.node.getPosition();
+            // if (haloPos.x > 0) {
+            //     var yangPos = this.yangEye.getPosition();
+            //     if (Math.abs(haloPos.x - yangPos.x) < this.tempoDetectOffect &&
+            //         Math.abs(haloPos.y - yangPos.y) < this.tempoDetectOffect) {
+            //         this.hitted = true;
+            //         this.force += 50;
+            //     }
+            // } else {
+            //     var yinPos = this.yinEye.getPosition();
+            //     if (Math.abs(haloPos.x - yinPos.x) < this.tempoDetectOffect &&
+            //         Math.abs(haloPos.y - yinPos.y) < this.tempoDetectOffect) {
+            //         this.hitted = true;
+            //     }
+            // }
 
-        if (this.isWhite) {
-            var yangPos = this.yangEye.getPosition();
-            this.checkHit(yangPos, haloPos);
-        } else {
-            var yinPos = this.yinEye.getPosition();
-            this.checkHit(yinPos, haloPos);
+            if (this.isWhite) {
+                var yangPos = this.yangEye.getPosition();
+                this.checkHit(yangPos, haloPos);
+            } else {
+                var yinPos = this.yinEye.getPosition();
+                this.checkHit(yinPos, haloPos);
+            }
+
+            this.processHit(this.hitted);
         }
+    },
 
-
-        if (this.hitted){
+    processHit (hitted) {
+        if (hitted){
             //如果击中，生成水滴
             this.drip = cc.instantiate(this.drips);
             this.drip.parent = this.game.node;
@@ -205,6 +250,7 @@ cc.Class({
         } else {
             this.animState = this.animation.play("halo_emerge_black");
         }
+        this.haloEmerged = true;
     },
 
     setSlidingTrack (slidingTrack) {

@@ -60,6 +60,11 @@ cc.Class({
             type: cc.Node
         },
 
+        clickPad: {
+            default: null,
+            type: cc.Node
+        },
+
         velocityMapping: true,
 
         difficulty: 'D',
@@ -70,8 +75,9 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-        var manager = cc.director.getCollisionManager();
-        manager.enabled = true;
+        //点击来操作小球时不需要检测碰撞
+        // var manager = cc.director.getCollisionManager();
+        // manager.enabled = true;
 
         //初始化触摸节点
         var windowSize = cc.winSize;
@@ -97,6 +103,9 @@ cc.Class({
         this.slidingTrackScript = this.slidingTrack.getComponent("SlidingTrack");
         this.yinControlPadScript = this.yinControlPad.getComponent("TouchPad");
         this.yangControlPadScript = this.yangControlPad.getComponent("TouchPad");
+
+        //todo: 删除
+        this.slidingTrackScript.game = this;
 
         this.yinControlPadScript.slidingTrack = this.slidingTrack;
         this.yangControlPadScript.slidingTrack = this.slidingTrack;
@@ -127,7 +136,7 @@ cc.Class({
         this.uiNode.getComponent("UIControl").game = this;
         this.uiNode.active = false;
 
-        this.gameStarted = false;
+        //this.gameStarted = false;
         //touching用来做暂停效果
         this.touching = false;
         cc.log(cc.sys.dump());
@@ -147,7 +156,7 @@ cc.Class({
     },
 
     update (dt) {
-        if (this.levelSongLoaded && this.gameStarted) {
+        if (this.levelSongLoaded && Global.gameStarted) {
             this.startNextLevel();
             this.levelSongLoaded = false;
         }
@@ -204,8 +213,8 @@ cc.Class({
 
     endGame () {
         //播放结束动画与显示结束后的UI
-        this.gameStarted = false;
-        this.yinyangFluid.getComponent("YinyangFluid").gameStarted = false;
+        Global.gameStarted = false;
+        //this.yinyangFluid.getComponent("YinyangFluid").gameStarted = false;
         this.slidingTrackScript.resetYinyangPosition();
         this.slidingTrackScript.playOpeningAnimation(true);
         cc.audioEngine.stop(this.audioID);
@@ -245,12 +254,17 @@ cc.Class({
         if (this.beginTempoCount) {
             this.deltaTime += dt;
             if (this.deltaTime >= this.tempo[this.tempoCount] - this.haloEmergeAnimDuration) {
+                var clickPadControl = this.clickPad.getComponent("ClickPad"); //判定点击击中光环
                 if (this.lastTempo) {
                     this.beginTempoCount = false;
                     let haloH  = cc.instantiate(this.halo);
                     let haloL = cc.instantiate(this.halo);
                     haloH.parent = this.node;
                     haloL.parent = this.node;
+
+                    clickPadControl.addHalo(haloH);
+                    clickPadControl.addHalo(haloL);
+
                     haloH.getComponent("Halo").setSlidingTrack(this.slidingTrack);
                     haloL.getComponent("Halo").setSlidingTrack(this.slidingTrack);
                     haloH.getComponent("Halo").game = this;
@@ -277,6 +291,7 @@ cc.Class({
                     let pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
                     let halo = cc.instantiate(this.halo);
                     halo.parent = this.node;
+                    clickPadControl.addHalo(halo);
                     var haloScript = halo.getComponent("Halo");
                     haloScript.setSlidingTrack(this.slidingTrack);
                     haloScript.game = this;

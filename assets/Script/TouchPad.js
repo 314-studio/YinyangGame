@@ -90,8 +90,8 @@ cc.Class({
 
         //响应触摸事件
         this.node.on ('touchstart', function (event) {
-            if (!this.game.gameStarted) {
-                this.game.gameStarted = true;
+            if (!Global.gameStarted) {
+                Global.gameStarted = true;
             }
             this.game.touching = true;
             this.padPressed = true;
@@ -150,11 +150,11 @@ cc.Class({
         }, this);
 
         this.node.on ('touchend', function (event) {
-            this.reset()
+            this.reset();
         }, this);
 
         this.node.on ('touchcancel', function (event) {
-            this.reset()
+            this.reset();
         }, this);
     },
 

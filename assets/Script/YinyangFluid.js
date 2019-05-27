@@ -84,7 +84,7 @@ cc.Class({
     },
 
     start () {
-        this.gameStarted = false;
+        //this.gameStarted = false;
         //初始化节点的位置
         for (var i = 0; i < this.jointAmount; i++) {
             this.joints[i].setPosition(0,
@@ -100,7 +100,7 @@ cc.Class({
     },
 
     update (dt) {
-        if (!this.gameStarted) {
+        if (!Global.gameStarted) {
             this.offset += 1;
             this.updateWavePoints(this.joints, dt);
         } else {
@@ -125,9 +125,12 @@ cc.Class({
                 for (var i = 0; i < this.borderKnots.length; i++) {
                     this.borderKnots[i].reset();
                 }
+                this.actionDelta = 0;
                 this.borderReseted = true;
             }
         }
+
+        //this.debugDraw();
     },
 
     shake (positionY) {
@@ -220,10 +223,10 @@ cc.Class({
     },
 
     startGame () {
-        this.gameStarted = true;
-        for (var i = 0; i < this.jointAmount; i++) {
-            this.joints[i].getComponent("ChainJoint").gameStarted = true;
-        }
+        // Global.gameStarted = true;
+        // for (var i = 0; i < this.jointAmount; i++) {
+        //     this.joints[i].getComponent("ChainJoint").gameStarted = true;
+        // }
     },
 
     initBorderKnots () {
@@ -322,7 +325,7 @@ cc.Class({
         for (var i = 0; i < this.borderKnots.length; i++) {
             this.ctx.rect(this.borderKnots[i].x - 5, this.borderKnots[i].y - 5, 10, 10);
             this.ctx.fillColor = cc.Color.RED;
-            this.ctx.fill()
+            this.ctx.fill();
         }
     },
 

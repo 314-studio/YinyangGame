@@ -15,7 +15,9 @@ cc.Class({
     properties: {
         openingAnimRadius: 10,
         openingAnimSmoothness: 1,
-        openingAnimDuration: 0.5
+        openingAnimDuration: 0.5,
+
+        enableClickToMove: true,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -29,6 +31,8 @@ cc.Class({
         this.ctx = this.getComponent(cc.Graphics);
 
         this.openingAnimPlaying = false;
+
+        //this.smoothness = 1;
     },
 
     start () {
@@ -42,12 +46,36 @@ cc.Class({
 
         //cc.log("新的位置",this.generateRamdomHaloPositon());
 
+        //用于储存阴阳移动的路径点
+        this.pathPoints = new Array();
+
         this.initActions();
 
         this.playOpeningAnimation(true);
+
+        // if (this.enableClickToMove) {
+            
+        // }
+        this.slidingAngle = 0;
+        //this.currentAngle = 0;
     },
 
     update (dt) {
+        if (Global.gameStarted) {
+            if (this.sliding) {
+                var pos = this.posOnCircleFormAngle(this.slidingAngle);
+                this.yangEye.setPosition(pos);
+                this.yinEye.setPosition(cc.v2(-pos.x, -pos.y));
+            } else {
+                if (this.enableClickToMove) {
+                    if (this.pathPoints.length > 0) {
+                        this.slideTo(this.pathPoints[0]);
+                        this.pathPoints.splice(0, 1);
+                        this.slidingAngle = this.positionToAngle(this.yangEye.getPosition());
+                    }
+                }
+            }
+        }
 
 
         if (Global.debug) {
@@ -59,6 +87,42 @@ cc.Class({
                 this.yangEye.getPosition().y, Global.radius);
             this.ctx.stroke();
         }
+    },
+
+    addPathPoint (point) {
+        this.pathPoints.push(point);
+    },
+
+    //
+    slideTo (point) {
+        this.sliding = true;
+        var angle = this.positionToAngle(point);
+
+        var pos = this.circlePosForAngle(cc.v2(0, 0), angle, Global.radius);
+        this.ctx.clear();
+        this.ctx.circle(pos.x, pos.y, 10);
+        this.ctx.fill();
+
+        cc.tween(this)
+            .to(0.5, {slidingAngle: angle}, {easing: 'quadInOut'})
+            .call(() => {this.sliding = false; cc.log("滑动完成")})
+            .start();
+
+        //cc.log(angle);
+    },
+
+    positionToAngle (point) {
+        var angle = Math.atan(point.y / point.x);
+        if (point.x < 0) {
+            angle += Math.PI;
+        }
+        return angle;
+    },
+
+    posOnCircleFormAngle (angle) {
+        var x = Math.cos(angle) * Global.radius;
+        var y = Math.sin(angle) * Global.radius;
+        return cc.v2(x, y);
     },
 
     resetYinyangPosition () {

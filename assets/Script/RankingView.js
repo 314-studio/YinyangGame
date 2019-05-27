@@ -28,14 +28,14 @@ cc.Class({
         }
     },
 
-    showRanking () {
+    showRanking (score) {
         if (!this.node.active) {
             this.node.active = true;
-            this.requestShowFriendsRanking();
-        } else {
-            this.requestShowFriendsRanking();
         }
 
+        this.requestSubmitScore(score);
+        this.requestShowFriendsRanking();
+        
         if (!this.wxSubView.enabled) {
             this.wxSubView.enabled = true;
         }

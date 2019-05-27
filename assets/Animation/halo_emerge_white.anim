@@ -57,5 +57,11 @@
       }
     }
   },
-  "events": []
+  "events": [
+    {
+      "frame": 1.5,
+      "func": "onFinished",
+      "params": []
+    }
+  ]
 }

@@ -95,6 +95,8 @@ cc.Class({
         this.backgroundWaveData();
 
         this.initBorderKnots();
+
+        this.borderReseted = true;
     },
 
     update (dt) {
@@ -109,9 +111,21 @@ cc.Class({
         this.drawCurve();
 
         if (this.cutsceneAnimPlaying) {
+            if (this.borderReseted) {
+                this.borderReseted = false;
+            }
+
             this.actionDelta += dt;
             for (var i = 0; i < this.borderKnots.length; i++) {
                 this.borderKnots[i].update(this.actionDelta, dt);
+            }
+        } else {
+            //过场动画结束播放后，如果边界点没有重置，就重置边界点。
+            if (!this.borderReseted) {
+                for (var i = 0; i < this.borderKnots.length; i++) {
+                    this.borderKnots[i].reset();
+                }
+                this.borderReseted = true;
             }
         }
     },

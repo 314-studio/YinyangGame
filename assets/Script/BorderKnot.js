@@ -53,6 +53,8 @@ cc.Class({
             offset * Math.sin(this.angle) * Global.radius * 2
         );
 
+        this.initialPosition = cc.v2(this.x, this.y);
+
         this.strippedTime = 2 +  Math.random() * (this.duration - 2);
     },
 
@@ -61,4 +63,9 @@ cc.Class({
             .to(duration, {x: this.destination.x, y: this.destination.y}, { easing: 'quadInOut'})
             .start();
     },
+
+    reset () {
+        this.x = this.initialPosition.x;
+        this.y = this.initialPosition.y;
+    }
 });

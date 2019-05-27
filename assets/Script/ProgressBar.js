@@ -58,16 +58,19 @@ cc.Class({
     start () {
         this.PROGRESSBAR_CENTER_OFFSET = 1;
         this.failCount = 0;
+        this.gameEnded = false;
     },
 
     bulidProgressBar (blockAmount) {
+        this.gameEnded = false;
+
         var winSize = cc.winSize;
         this.progressBarWidth = winSize.width;
         this.node.setPosition(cc.v2(0, winSize.height / 2 - this.topMargin));
         //cc.log(this.node.getPosition(), winSize, this.node.parent.y);
-        var blockContainer = cc.instantiate(this.blockContainer);
-        blockContainer.width = this.progressBarWidth;
-        blockContainer.parent = this.node;
+        this.container = cc.instantiate(this.blockContainer);
+        this.container.width = this.progressBarWidth;
+        this.container.parent = this.node;
 
         this.blockAmount = blockAmount;
         this.blockUnitWidth = this.progressBarWidth / (blockAmount - 1) / 2;
@@ -91,10 +94,19 @@ cc.Class({
     },
 
     checkFail () {
-        this.failCount++;
-        if (this.failCount / this.blockAmount > this.maxFailPercent) {
-            this.game.endGame();
+        if (!this.gameEnded) {
+            this.failCount++;
+            if (this.failCount / this.blockAmount > this.maxFailPercent) {
+                this.game.endGame();
+                this.gameEnded = true;
+            }
         }
+    },
+
+    clear () {
+        this.node.removeAllChildren();
+        this.container.destroy();
+        this.failCount = 0;
     },
 
     //击中后在进度条上生成进度块

@@ -25,11 +25,6 @@ cc.Class({
             type: cc.Node
         },
 
-        scoreDisplay: {
-            default: null,
-            type: cc.Label
-        },
-
         halo:{
             default: null,
             type: cc.Prefab
@@ -60,6 +55,11 @@ cc.Class({
             type: cc.Node
         },
 
+        uiNode: {
+            default: null,
+            type: cc.Node
+        },
+
         velocityMapping: true,
 
         difficulty: 'D',
@@ -72,8 +72,6 @@ cc.Class({
     onLoad () {
         var manager = cc.director.getCollisionManager();
         manager.enabled = true;
-
-        this.initUI();
 
         //初始化触摸节点
         var windowSize = cc.winSize;
@@ -110,20 +108,27 @@ cc.Class({
         this.levelSongLoaded = false;
         this.beginTempoCount = false;
         this.tempoCount = 0;
-        this.loadMusicAndTempo(this.difficulty);
-        this.songEnded = false;
+        //this.loadMusicAndTempo(this.difficulty);
+        this.levelEnded = false;
         this.lastTempo = false;
 
         //得分
         this.score = 0;
         this.cameraScript = this.camera.getComponent("CameraControl");
+        this.scoreDisplay = this.uiNode.getChildByName("Score").getComponent(cc.Label);
+        this.musicNameDisplay = this.uiNode.getChildByName("MusicName").getComponent(cc.Label);
 
         this.levelCount = 0;
         this.progressBar.getComponent("ProgressBar").game = this;
     },
 
     start () {
+        //游戏没开始时，UI不显示
+        this.uiNode.getComponent("UIControl").game = this;
+        this.uiNode.active = false;
+
         this.gameStarted = false;
+        //touching用来做暂停效果
         this.touching = false;
         cc.log(cc.sys.dump());
         this.deltaTime = 0;
@@ -137,6 +142,8 @@ cc.Class({
         // this.scheduleOnce(function() {
         //     this.playCutsceneAnim();
         // }, 5);
+
+        this.loadNextLevelSong();
     },
 
     update (dt) {
@@ -147,9 +154,9 @@ cc.Class({
         this.generateHalo(dt);
 
         //如果音乐播放结束，说明用户还没死，进入下一关
-        if (this.songEnded) {
+        if (this.levelEnded) {
             this.loadNextLevelSong();
-            this.songEnded = false;
+            this.levelEnded = false;
         }
     },
 
@@ -163,16 +170,36 @@ cc.Class({
     },
 
     startNextLevel () {
+        if (this.levelCount == 0) {
+            this.uiNode.active = true;
+        } else {
+
+        }
+
         this.audioID = cc.audioEngine.play(this.music, false, 1);
         this.beginTempoCount = true;
         this.yinyangFluid.getComponent("YinyangFluid").startGame();
         this.slidingTrackScript.playOpeningAnimation(false);
         this.levelCount++;
         this.progressBar.getComponent("ProgressBar").bulidProgressBar(this.tempo.length);
+
+        this.uiNode.active = true;
+        this.touchPadNode.active = true;
     },
 
     loadNextLevelSong () {
-        this.loadMusicAndTempo('A');
+        var musicName = "";
+        if (this.levelCount == 0) {
+            musicName = "青螺峪";
+        } else if (this.levelCount == 1) {
+            musicName = "Limousine";
+        } else {
+            musicName = "回梦游仙";
+        }
+        //todo: 更改音乐加载方式
+        this.musicNameDisplay.string = musicName;
+
+        this.loadMusicAndTempo(musicName, 'D');
     },
 
     endGame () {
@@ -183,7 +210,25 @@ cc.Class({
         this.slidingTrackScript.playOpeningAnimation(true);
         cc.audioEngine.stop(this.audioID);
         this.stopGenerateHalo();
-        this.wechatRanking.getComponent("RankingView").showRanking();
+
+        //提交并显示得分
+        this.wechatRanking.getComponent("RankingView").showRanking(this.score);
+        this.levelCount = 0;
+
+        this.uiNode.getComponent("UIControl").restartGameBtn.active = true;
+        this.touchPadNode.active = false;
+    },
+
+    restartGame () {
+        this.wechatRanking.active = false;
+        this.progressBar.getComponent("ProgressBar").clear();
+        this.uiNode.active = false;
+        this.touchPadNode.active = true;
+        this.loadNextLevelSong();
+
+        //重置得分
+        this.score = 0;
+        this.scoreDisplay.string = this.getScoreString(this.score);
     },
 
     stopGenerateHalo () {
@@ -213,6 +258,9 @@ cc.Class({
 
                     haloH.setPosition(0, Global.radius);
                     haloL.setPosition(0, -Global.radius);
+
+                    haloH.getComponent("Halo").play(false);
+                    haloL.getComponent("Halo").play(true);
 
                     //重置节拍计数
                     this.tempoCount++;
@@ -252,19 +300,33 @@ cc.Class({
     },
 
     playCutsceneAnim () {
+        this.uiNode.active = false;
+        this.touchPadNode.active = false;
+
         this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = true;
         this.scheduleOnce(function() {
             this.cameraScript.shakeLong();
         }, 1);
         this.scheduleOnce(function() {
-            this.cameraScript.rotate(20);
+            this.progressBar.getComponent("ProgressBar").clear();
+            //this.cameraScript.rotate(10);
+            var duration = 10;
+            cc.tween(this.yinyangFluid)
+            .to(duration, {angle: 720}, { easing: 'quadInOut'})
+            .start();
+            cc.tween(this.slidingTrack)
+            .to(duration, {angle: 720}, { easing: 'quadInOut'})
+            .start();
             this.deltaTime = 0;
-            //todo: 音乐结束的时间问题
-            //this.songEnded = true;
         }, 12);
+        this.scheduleOnce(function() {
+            //todo: 音乐结束的时间问题
+            this.levelEnded = true;
+            this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = false;
+        }, 22);
     },
 
-    gainScore (hittedPosY) {
+    gainScore (score) {
         // TODO: 判断平台，处理震动效果
         if (cc.sys.isMobile) {
             wx.vibrateShort({
@@ -276,13 +338,39 @@ cc.Class({
 
         this.cameraScript.shake();
 
-        this.score += 1;
-        this.scoreDisplay.string = this.score;
+        this.score += score;
+        this.scoreDisplay.string = this.getScoreString(this.score);
     },
 
-    loadMusicAndTempo (difficulty) {
+    getScoreString (score) {
+        var count = 0;
+        var temp = score;
+        while (temp >= 1) {
+            temp /= 10
+            count++;
+        }
+
+        if (count == 0) {
+            return "0000" + score;
+        } else if (count == 1) {
+            return "000" + score;
+        } else if (count == 2) {
+            return "00" + score;
+        } else if (count == 3) {
+            return "0" + score;
+        } else {
+            return score;
+        }
+    },
+
+    loadMusicAndTempo (musicName, difficulty) {
+        var musicUrl = 'Musics/' + musicName + ".mp3";
+        var jsonUrl = 'Json/' + musicName;
+        if (musicName == "Limonsine") {
+            musicUrl = 'Music/' + musicName + ".wav";
+        }
         let self = this;
-        cc.loader.loadRes('Musics/Limousine', cc.AudioClip, function (err, music) {
+        cc.loader.loadRes(musicUrl, cc.AudioClip, function (err, music) {
             if (err) {
                 cc.error(err);
                 return;
@@ -290,7 +378,7 @@ cc.Class({
             self.music = music;
             self.levelSongLoaded = true;
         });
-        cc.loader.loadRes('Json/Limousine', function (err, tempo) {
+        cc.loader.loadRes(jsonUrl, function (err, tempo) {
             var tempo = tempo.json;
             var test_tempo = new Array();
             switch(difficulty) {
@@ -316,9 +404,5 @@ cc.Class({
             }
             self.tempo = test_tempo;
         });
-    },
-
-    initUI () {
-        
     },
 });

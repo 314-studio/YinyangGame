@@ -49,7 +49,6 @@ cc.Class({
     },
 
     update (dt) {
-        // TODO: 代码优化,不用每帧赋值，被动
         //this.eyeCollided = this.collisionScript.eyeCollided;
 
         //控制小球不能超过自己的区域
@@ -151,18 +150,19 @@ cc.Class({
         }, this);
 
         this.node.on ('touchend', function (event) {
-            this.game.touching = false;
-            this.padPressed = false;
-            this.delta = 0;
-            this.startAngle = this.angle;
+            this.reset()
         }, this);
 
         this.node.on ('touchcancel', function (event) {
-            this.game.touching = false;
-            this.padPressed = false;
-            this.delta = 0;
-            this.startAngle = this.angle;
+            this.reset()
         }, this);
+    },
+
+    reset () {
+        this.game.touching = false;
+        this.padPressed = false;
+        this.delta = 0;
+        this.startAngle = this.angle;
     },
 
     //用于初始化阴球的位置

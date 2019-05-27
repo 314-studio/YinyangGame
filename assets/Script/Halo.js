@@ -29,7 +29,7 @@ cc.Class({
 
         this.animation = this.node.getComponent(cc.Animation);
         this.hitted = false;
-        this.animation.on('finished',this.onFinished,this);
+        this.animation.on('finished',this.onAnimEnd,this);
         this.isWhite = false;
         this.actionPlaying = false;
 
@@ -46,9 +46,17 @@ cc.Class({
     start () {
         this.progressBarScript = this.game.progressBar.getComponent("ProgressBar");
         this.blockCount = 0;
+        this.force = 0;
+        this.resistance = 0.8;
     },
 
     update (dt) {
+        //如果在水滴移动的时候，游戏结束，就自毁
+        if (!this.game.gameStarted && this.drip != null) {
+            this.drip.destroy();
+            this.node.destroy();
+        }
+
         //依据水滴受力控制水滴移动
         if (this.dripAnimPlaying) {
             if (this.force >= 0) {
@@ -69,7 +77,7 @@ cc.Class({
                 this.drip.y += this.force * dt * this.direction.y;
 
                 //阻力
-                this.force -= 0.8;
+                this.force -= this.resistance;
             } else {
                 //不受力时停止移动
                 this.force = 0;
@@ -94,21 +102,58 @@ cc.Class({
         }
     },
 
+    onAnimEnd (type, state) {
+        if (!this.hitted) {
+            this.node.destroy();
+        }
+    },
+
+    checkHit (eyePos, haloPos) {
+        var xDiff = Math.abs(haloPos.x - eyePos.x);
+        var yDiff = Math.abs(haloPos.y - eyePos.y);
+        var unitTempoDT = this.tempoDetectOffect / 3;
+
+        if (xDiff <= unitTempoDT && yDiff <= unitTempoDT) {
+            this.hitted = true;
+            this.force += 200;
+            this.resistance = 2.0;
+            this.game.gainScore(3);
+        } else if (xDiff <= unitTempoDT * 2 && yDiff <= unitTempoDT * 2) {
+            this.hitted = true;
+            this.force += 100;
+            this.resistance = 1.6;
+            this.game.gainScore(2);
+        } else if (xDiff <= this.tempoDetectOffect && this.yDiff < this.tempoDetectOffect) {
+            this.hitted = true;
+            this.game.gainScore(1);
+        }
+    },
+
+    //todo: 改事件的名字
     onFinished(type, state){
         //依据光环与阴阳小球的距离来判断是否击中
         var haloPos = this.node.getPosition();
-        if (haloPos.x > 0) {
+        // if (haloPos.x > 0) {
+        //     var yangPos = this.yangEye.getPosition();
+        //     if (Math.abs(haloPos.x - yangPos.x) < this.tempoDetectOffect &&
+        //         Math.abs(haloPos.y - yangPos.y) < this.tempoDetectOffect) {
+        //         this.hitted = true;
+        //         this.force += 50;
+        //     }
+        // } else {
+        //     var yinPos = this.yinEye.getPosition();
+        //     if (Math.abs(haloPos.x - yinPos.x) < this.tempoDetectOffect &&
+        //         Math.abs(haloPos.y - yinPos.y) < this.tempoDetectOffect) {
+        //         this.hitted = true;
+        //     }
+        // }
+
+        if (this.isWhite) {
             var yangPos = this.yangEye.getPosition();
-            if (Math.abs(haloPos.x - yangPos.x) < this.tempoDetectOffect &&
-                Math.abs(haloPos.y - yangPos.y) < this.tempoDetectOffect) {
-                this.hitted = true;
-            }
+            this.checkHit(yangPos, haloPos);
         } else {
             var yinPos = this.yinEye.getPosition();
-            if (Math.abs(haloPos.x - yinPos.x) < this.tempoDetectOffect &&
-                Math.abs(haloPos.y - yinPos.y) < this.tempoDetectOffect) {
-                this.hitted = true;
-            }
+            this.checkHit(yinPos, haloPos);
         }
 
 
@@ -129,7 +174,8 @@ cc.Class({
             }
 
             //赋予水滴的力和方向
-            this.force = Math.random() * (this.force - this.force / 2) + this.force / 2;
+            //this.force = Math.random() * (this.force - this.force / 2) + this.force / 2;
+            this.force += 180;
             this.direction = this.getRandomDirection();
             // cc.tween(drip)
             // .to(2, {position: this.getRandomDriptoPosition()}, { easing: 'quadInOut'})
@@ -137,7 +183,6 @@ cc.Class({
 
             //处理击中光环后的效果，加分，增加进度
             this.dripAnimPlaying = true;
-            this.game.gainScore(this.node.y);
             this.hitPosition = this.progressBarScript.getNextBlockPosition();
             this.blockCount = this.progressBarScript.increaseBlockCount();
             this.animation.off('finished',this.onFinished,this);
@@ -156,9 +201,9 @@ cc.Class({
     play (isWhite) {
         if (isWhite) {
             this.isWhite = true;
-            this.animation.play("halo_emerge_white");
+            this.animState = this.animation.play("halo_emerge_white");
         } else {
-            this.animation.play("halo_emerge_black");
+            this.animState = this.animation.play("halo_emerge_black");
         }
     },
 

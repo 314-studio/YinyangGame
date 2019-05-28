@@ -54,6 +54,7 @@ cc.Class({
             if (!Global.gameStarted) {
                 Global.gameStarted = true;
             }
+            this.clicked(event.getLocation());
         }, this);
 
         // this.node.on ('touchmove', function (event) {
@@ -61,7 +62,7 @@ cc.Class({
         // }, this);
 
         this.node.on ('touchend', function (event) {
-            this.clicked(event.getLocation());
+            //this.clicked(event.getLocation());
         }, this);
 
         // this.node.on ('touchcancel', function (event) {
@@ -77,31 +78,50 @@ cc.Class({
 
         //todo:播放水波纹动画
 
-        //清空halos中失效的halo
+        //清空halos中失效的halo 和已经被点击过的haloå
         var temp = new Array();
         for (var i = 0; i < this.halos.length; i++) {
             if (this.halos[i].active) {
-                temp.push(this.halos[i]);
+                var haloEmerged = this.halos[i].getComponent("Halo").haloEmerged;
+                if (haloEmerged) {
+                    temp.push(this.halos[i]);
+                }
             }
         }
         this.halos = temp;
 
-        //判断是否点击到光环
-        var hittedHalos = new Array();
-        var hitCount = 0;
-        for (var i = 0; i < this.halos.length; i++) {
-            var xDiff = Math.abs(this.halos[i].x - x);
-            var yDiff = Math.abs(this.halos[i].y - y);
-            if (xDiff < this.tempoDetectOffset && yDiff < this.tempoDetectOffset) {
-                hittedHalos.push(this.halos[i]);
-                hitCount++;
+        if (this.halos.length > 0) {
+            //判断是否点击到光环
+            var hittedHalos = new Array();
+            var hitCount = 0;
+            for (var i = 0; i < this.halos.length; i++) {
+                var xDiff = Math.abs(this.halos[i].x - x);
+                var yDiff = Math.abs(this.halos[i].y - y);
+                if (xDiff < this.tempoDetectOffset && yDiff < this.tempoDetectOffset) {
+                    hittedHalos.push(this.halos[i]);
+                    hitCount++;
+                }
             }
-        }
-        if (hitCount > 0) {
-            if (hitCount == 1) {
-                hittedHalos[0].getComponent("Halo").checkHitByClick();
-            } else {
-                //处理多个光环重叠的情况
+            if (hitCount > 0) {
+                //hittedHalos[0].getComponent("Halo").checkHitByClick();
+                if (hitCount == 1) {
+                    hittedHalos[0].getComponent("Halo").checkHitByClick();
+                } else {
+                    //处理多个光环重叠的情况
+                    var states = new Array(hittedHalos.length);
+                    for (var i = 0; i < hittedHalos.length; i++) {
+                        states[i] = hittedHalos[i].getComponent("Halo").animState;
+                    }
+                    var temp = 0;
+                    var count = 0;
+                    for (var i = 0; i < hittedHalos.length; i++) {
+                        if (states[i].time > temp) {
+                            temp = states[i].time;
+                            count = i;
+                        }
+                    }
+                    hittedHalos[count].getComponent("Halo").checkHitByClick();
+                }
             }
         }
 

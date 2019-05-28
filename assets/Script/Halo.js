@@ -148,6 +148,7 @@ cc.Class({
             //如果光环出现了，但是提前点了，就判失误，该光环不再响应点击
             //todo:添加提前点击动画
             this.haloEmerged = false;
+            this.node.opacity = 0;
             this.processHit(this.hitted);
         }
     },

@@ -15,11 +15,6 @@ cc.Class({
     properties: {
         debug: true,
 
-        touchPad: {
-            default: null,
-            type: cc.Prefab
-        },
-
         slidingTrack: {
             default: null,
             type: cc.Node
@@ -45,11 +40,6 @@ cc.Class({
             type: cc.Node
         },
 
-        touchPadNode: {
-            default: null,
-            type: cc.Node
-        },
-
         wechatRanking: {
             default: null,
             type: cc.Node
@@ -60,7 +50,12 @@ cc.Class({
             type: cc.Node
         },
 
-        clickPad: {
+        touchPad: {
+            default: null,
+            type: cc.Node
+        },
+
+        gamePauseView: {
             default: null,
             type: cc.Node
         },
@@ -68,8 +63,6 @@ cc.Class({
         velocityMapping: true,
 
         difficulty: 'D',
-
-        distanceMappingCoef: 5
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -83,14 +76,6 @@ cc.Class({
         var windowSize = cc.winSize;
         Global.debug = this.debug;
         Global.radius = Math.round(windowSize.height / 4);
-        this.yinControlPad = cc.instantiate(this.touchPad);
-        this.yangControlPad = cc.instantiate(this.touchPad);
-
-        this.yinControlPad.parent = this.touchPadNode;
-        this.yangControlPad.parent = this.touchPadNode;
-
-        this.yinControlPad.setPosition(-windowSize.width / 4, 0);
-        this.yangControlPad.setPosition(windowSize.width / 4, 0);
 
         if (Global.debug) {
             cc.log("右触摸节点x位置：", this.yangControlPad.getPosition().x,
@@ -101,17 +86,10 @@ cc.Class({
         }
 
         this.slidingTrackScript = this.slidingTrack.getComponent("SlidingTrack");
-        this.yinControlPadScript = this.yinControlPad.getComponent("TouchPad");
-        this.yangControlPadScript = this.yangControlPad.getComponent("TouchPad");
 
         //todo: 删除
         this.slidingTrackScript.game = this;
 
-        this.yinControlPadScript.slidingTrack = this.slidingTrack;
-        this.yangControlPadScript.slidingTrack = this.slidingTrack;
-        this.yinControlPadScript.game = this;
-        this.yangControlPadScript.game = this;
-        this.yinControlPadScript.thisIsYinTouchPad();
 
         //加载音乐与节拍
         this.levelSongLoaded = false;
@@ -129,6 +107,16 @@ cc.Class({
 
         this.levelCount = 0;
         this.progressBar.getComponent("ProgressBar").game = this;
+
+        this.gamePauseView.active = false;
+        this.gamePauseView.setContentSize(cc.winSize.width, cc.winSize.height);
+        this.gamePauseView.on('touchend', function (event) {
+            this.resumeGame();
+        }, this);
+
+        //settings layout
+        this.gamePauseView.getChildByName("layout").getComponent("Settings").game = this;
+        this.musicOffset = 0;
     },
 
     start () {
@@ -182,12 +170,6 @@ cc.Class({
     },
 
     startNextLevel () {
-        if (this.levelCount == 0) {
-            this.uiNode.active = true;
-        } else {
-
-        }
-
         this.audioID = cc.audioEngine.play(this.music, false, 1);
         this.beginGenerateHalo = true;
         this.yinyangFluid.getComponent("YinyangFluid").startGame();
@@ -196,7 +178,6 @@ cc.Class({
         this.progressBar.getComponent("ProgressBar").bulidProgressBar(this.tempo.length);
 
         this.uiNode.active = true;
-        this.touchPadNode.active = true;
     },
 
     loadNextLevelSong () {
@@ -228,19 +209,31 @@ cc.Class({
         this.levelCount = 0;
 
         this.uiNode.getComponent("UIControl").restartGameBtn.active = true;
-        this.touchPadNode.active = false;
     },
 
     restartGame () {
         this.wechatRanking.active = false;
         this.progressBar.getComponent("ProgressBar").clear();
         this.uiNode.active = false;
-        this.touchPadNode.active = true;
         this.loadNextLevelSong();
 
         //重置得分
         this.score = 0;
         this.scoreDisplay.string = this.getScoreString(this.score);
+    },
+
+    pauseGame () {
+        cc.audioEngine.pause(this.audioID);
+        this.uiNode.getChildByName("Pause").active = false;
+        this.scheduleOnce(function() {
+            this.gamePauseView.active = true;
+        }, this.haloEmergeAnimDuration);
+    },
+
+    resumeGame () {
+        cc.audioEngine.resume(this.audioID);
+        this.uiNode.getChildByName("Pause").active = true;
+        this.gamePauseView.active = false;
     },
 
     stopGenerateHalo () {
@@ -257,8 +250,10 @@ cc.Class({
         if (this.beginGenerateHalo) {
             var playedTime = cc.audioEngine.getCurrentTime(this.audioID);
             //this.deltaTime += dt;
-            if (playedTime >= this.tempo[this.tempoCount] - this.haloEmergeAnimDuration) {
-                var clickPadControl = this.clickPad.getComponent("ClickPad"); //判定点击击中光环
+            if (playedTime >= this.tempo[this.tempoCount] - 
+                    this.haloEmergeAnimDuration + this.musicOffset) {
+                //todo: 更改clickpad
+                var touchPadControl = this.touchPad.getComponent("ClickPad"); //判定点击击中光环
                 if (this.lastTempo) {
                     this.beginGenerateHalo = false;
                     let haloH  = cc.instantiate(this.halo);
@@ -266,8 +261,8 @@ cc.Class({
                     haloH.parent = this.node;
                     haloL.parent = this.node;
 
-                    clickPadControl.addHalo(haloH);
-                    clickPadControl.addHalo(haloL);
+                    touchPadControl.addHalo(haloH);
+                    touchPadControl.addHalo(haloL);
 
                     haloH.getComponent("Halo").setSlidingTrack(this.slidingTrack);
                     haloL.getComponent("Halo").setSlidingTrack(this.slidingTrack);
@@ -295,7 +290,7 @@ cc.Class({
                     let pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
                     let halo = cc.instantiate(this.halo);
                     halo.parent = this.node;
-                    clickPadControl.addHalo(halo);
+                    touchPadControl.addHalo(halo);
                     var haloScript = halo.getComponent("Halo");
                     haloScript.setSlidingTrack(this.slidingTrack);
                     haloScript.game = this;
@@ -322,7 +317,6 @@ cc.Class({
 
     playCutsceneAnim () {
         this.uiNode.active = false;
-        this.touchPadNode.active = false;
 
         this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = true;
         this.scheduleOnce(function() {
@@ -350,11 +344,13 @@ cc.Class({
     gainScore (score) {
         // TODO: 判断平台，处理震动效果
         if (cc.sys.isMobile) {
+            if (this.vibrationEnabled) {
             wx.vibrateShort({
                 success: function () {
                     console.log('震动成功！');
                 }
             });
+            }
         }
 
         this.cameraScript.shake();
@@ -425,5 +421,9 @@ cc.Class({
             }
             self.tempo = test_tempo;
         });
+    },
+
+    setMusicPlayOffset (offset) {
+        this.musicOffset = offset;
     },
 });

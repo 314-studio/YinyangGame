@@ -245,12 +245,8 @@ cc.Class({
 
     //播放光环出现动画
     play (isWhite) {
-        if (isWhite) {
-            this.isWhite = true;
-            this.animState = this.animation.play("halo_emerge_white");
-        } else {
-            this.animState = this.animation.play("halo_emerge_black");
-        }
+        this.isWhite = isWhite;
+        this.animState = this.animation.play("halo_emerge");
         this.haloEmerged = true;
     },
 

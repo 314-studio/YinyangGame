@@ -18,8 +18,10 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-        this.restartGameBtn = this.node.getChildByName("button");
+        this.restartGameBtn = this.node.getChildByName("Restart");
         this.restartGameBtn.on('click', this.onRestartClicked, this);
+        this.pauseBtn = this.node.getChildByName("Pause");
+        this.pauseBtn.on('click', this.onPauseClicked, this);
     },
 
     start () {
@@ -29,7 +31,12 @@ cc.Class({
     onRestartClicked: function (button) {
         cc.log("button clicked!");
         this.game.restartGame();
-    }
+    },
+
+    onPauseClicked: function (pauseBtn) {
+        cc.log("button pause clicked!");
+        this.game.pauseGame();
+    },
 
     // update (dt) {},
 });

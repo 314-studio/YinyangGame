@@ -31,6 +31,7 @@ cc.Class({
         this.ctx = this.getComponent(cc.Graphics);
 
         this.openingAnimPlaying = false;
+        this.touchMove = false;
 
         //this.smoothness = 1;
     },
@@ -63,15 +64,37 @@ cc.Class({
     update (dt) {
         if (Global.gameStarted) {
             if (this.sliding) {
-                var pos = this.posOnCircleFormAngle(this.slidingAngle);
-                this.yangEye.setPosition(pos);
-                this.yinEye.setPosition(cc.v2(-pos.x, -pos.y));
+                if (!this.touchMove) {
+                    var pos = this.posOnCircleFormAngle(this.slidingAngle);
+                    this.yangEye.setPosition(pos);
+                    this.yinEye.setPosition(cc.v2(-pos.x, -pos.y));
+                } else {
+                    //this.sliding = false;
+                }
             } else {
                 if (this.enableClickToMove) {
                     if (this.pathPoints.length > 0) {
                         this.slideTo(this.pathPoints[0]);
                         this.pathPoints.splice(0, 1);
                         this.slidingAngle = this.positionToAngle(this.yangEye.getPosition());
+                    }
+                }
+            }
+
+            //控制小球不能超过自己的区域
+            if (this.touchMove) {
+                if (this.yinEye.getPosition().x > 0) {
+                    if (this.yinEye.getPosition().y > 0) {
+                        this.yinEye.setPosition(0, Global.radius);
+                    } else {
+                        this.yinEye.setPosition(0, -Global.radius);
+                    }
+                }
+                if (this.yangEye.getPosition().x < 0) {
+                    if (this.yangEye.getPosition().y > 0) {
+                        this.yangEye.setPosition(0, Global.radius);
+                    } else {
+                        this.yangEye.setPosition(0, -Global.radius);
                     }
                 }
             }
@@ -86,6 +109,17 @@ cc.Class({
             this.ctx.circle(this.yangEye.getPosition().x,
                 this.yangEye.getPosition().y, Global.radius);
             this.ctx.stroke();
+        }
+    },
+
+    moveEyeByDelta (isYang, delta) {
+        var angle = Math.atan(delta.y / Global.radius);
+        if (isYang) {
+            var currentAngle = this.positionToAngle(this.yangEye.getPosition());
+            this.yangEye.setPosition(this.posOnCircleFormAngle(currentAngle + angle));
+        } else {
+            var currentAngle = this.positionToAngle(this.yinEye.getPosition());
+            this.yinEye.setPosition(this.posOnCircleFormAngle(currentAngle - angle));
         }
     },
 

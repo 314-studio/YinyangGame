@@ -19,13 +19,13 @@
       "trimX": 0,
       "trimY": 0,
       "width": 20,
-      "height": 12,
+      "height": 18,
       "rawWidth": 20,
-      "rawHeight": 12,
-      "borderTop": 0,
-      "borderBottom": 0,
-      "borderLeft": 9,
-      "borderRight": 9,
+      "rawHeight": 18,
+      "borderTop": 2,
+      "borderBottom": 2,
+      "borderLeft": 2,
+      "borderRight": 2,
       "subMetas": {}
     }
   }

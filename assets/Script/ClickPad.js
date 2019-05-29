@@ -16,8 +16,6 @@ cc.Class({
             default: null,
             type: cc.Node
         },
-
-
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -27,7 +25,11 @@ cc.Class({
         this.node.width = winSize.width;
         this.node.height = winSize.height;
 
-        
+        //touchpad
+        this.touchMove = false;
+        //this.node.setContentSize(winSize.width, winSize.height);
+
+        this.gamePaused = false;
     },
 
     start () {
@@ -43,12 +45,19 @@ cc.Class({
         this.halos = new Array();
 
         this.tempoDetectOffset = 30;
+
+        var temp = Math.PI / 180;
+        this.angle90 = 90 * temp;
+        this.angle90Plus = this.angle90 + 0.01;
+        this.angle270 = 270 * temp;
     },
 
-    // update (dt) {},
+    // update (dt) {
+    //     //touchpad
+
+    // },
 
     initEventListener: function () {
-
         //响应触摸事件
         this.node.on ('touchstart', function (event) {
             if (!Global.gameStarted) {
@@ -57,17 +66,28 @@ cc.Class({
             this.clicked(event.getLocation());
         }, this);
 
-        // this.node.on ('touchmove', function (event) {
+        this.node.on ('touchmove', function (event) {
+            this.slidingTrackControl.touchMove = true;
+            var x = event.getLocationX() - cc.winSize.width / 2;
+            var delta = event.getDelta();
 
-        // }, this);
+            if (x >= 0) {
+                this.slidingTrackControl.moveEyeByDelta(true, delta);
+            } else {
+                this.slidingTrackControl.moveEyeByDelta(false, delta);
+            }
+
+        }, this);
 
         this.node.on ('touchend', function (event) {
             //this.clicked(event.getLocation());
+            this.slidingTrackControl.touchMove = false;
+
         }, this);
 
-        // this.node.on ('touchcancel', function (event) {
-
-        // }, this);
+        this.node.on ('touchcancel', function (event) {
+            this.slidingTrackControl.touchMove = false;
+        }, this);
     },
 
     clicked: function (location) {
@@ -136,5 +156,18 @@ cc.Class({
 
     addHalo (halo) {
         this.halos.push(halo);
-    }
+    },
+
+    updateEyePosition (angle) {
+        if (this.isYinTouchPad) {
+            var xYin = Math.cos(angle) * this.radius;
+            var yYin = Math.sin(angle) * this.radius;
+            this.yinEye.setPosition(xYin, yYin);
+        } else {
+            var xYang = Math.cos(angle) * this.radius;
+            var yYang = Math.sin(angle) * this.radius;
+            this.yangEye.setPosition(xYang, yYang);
+            //cc.log("yang");
+        }
+    },
 });

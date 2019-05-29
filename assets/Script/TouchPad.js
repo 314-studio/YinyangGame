@@ -13,7 +13,6 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        distanceMappingCoef: 1,
         yinyangMinimumDistance: 30
     },
 
@@ -102,7 +101,7 @@ cc.Class({
             if (this.padPressed) {
                 var y = event.getLocationY();
                 delta = y - startY;
-                delta *= this.distanceMappingCoef;
+                //delta *= this.distanceMappingCoef;
 
                 if (this.controlPaused) {
                     if (this.isYinTouchPad) {

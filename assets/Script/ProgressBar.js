@@ -27,22 +27,7 @@ cc.Class({
             type: cc.Prefab
         },
 
-        redBlock: {
-            default: null,
-            type: cc.Prefab
-        },
-
-        blackTriangle: {
-            default: null,
-            type: cc.Prefab
-        },
-
-        whiteTriangle: {
-            default: null,
-            type: cc.Prefab
-        },
-
-        redTriangle: {
+        grayBlock: {
             default: null,
             type: cc.Prefab
         },
@@ -73,19 +58,16 @@ cc.Class({
         this.container.parent = this.node;
 
         this.blockAmount = blockAmount;
-        this.blockUnitWidth = this.progressBarWidth / (blockAmount - 1) / 2;
+        this.blockUnitWidth = this.progressBarWidth / blockAmount;
+        this.blockHeight = this.container.height - 10;
         this.blockCount = 0;
+        this.offset = this.blockUnitWidth / 2 + 4;
     },
 
     getNextBlockPosition () {
         var y = this.node.y;
-        if (this.blockCount == 1) {
-            return cc.v2(-this.progressBarWidth / 2 + this.blockUnitWidth, y);
-        } else if (this.blockCount == this.blockAmount) {
-            return cc.v2(this.progressBarWidth / 2 - this.blockUnitWidth, y);
-        } else {
-            return cc.v2(-this.progressBarWidth / 2 + this.blockCount * 2 * this.blockUnitWidth, y);
-        }
+        return cc.v2(-this.progressBarWidth / 2 + this.offset + 
+            this.blockCount * this.blockUnitWidth, y);
     },
 
     increaseBlockCount () {
@@ -112,32 +94,19 @@ cc.Class({
     //击中后在进度条上生成进度块
     hit (hitted, isWhite, position, blockCount) {
         var block = null;
-        if (blockCount == 1 || blockCount == this.blockAmount) {
-            if (hitted) {
-                if (isWhite) {
-                    block = cc.instantiate(this.whiteTriangle);
-                } else {
-                    block = cc.instantiate(this.blackTriangle);
-                }
+
+        if (hitted) {
+            if (isWhite) {
+                block = cc.instantiate(this.whiteBlock);
             } else {
-                block = cc.instantiate(this.redTriangle);
+                block = cc.instantiate(this.blackBlock);
             }
         } else {
-            if (hitted) {
-                if (isWhite) {
-                    block = cc.instantiate(this.whiteBlock);
-                } else {
-                    block = cc.instantiate(this.blackBlock);
-                }
-            } else {
-                block = cc.instantiate(this.redBlock);
-            }
+            block = cc.instantiate(this.grayBlock);
         }
 
-        if (blockCount == this.blockAmount) {
-            block.rotation = Math.PI;
-        }
-        block.width = this.blockUnitWidth * 2;
+        block.width = this.blockUnitWidth;
+        block.height = this.blockHeight;
         block.parent = this.node;
 
         block.setPosition(position.x, this.PROGRESSBAR_CENTER_OFFSET);

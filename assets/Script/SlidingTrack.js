@@ -99,13 +99,13 @@ cc.Class({
         var angle = this.positionToAngle(point);
 
         var pos = this.circlePosForAngle(cc.v2(0, 0), angle, Global.radius);
-        this.ctx.clear();
-        this.ctx.circle(pos.x, pos.y, 10);
-        this.ctx.fill();
+        // this.ctx.clear();
+        // this.ctx.circle(pos.x, pos.y, 10);
+        // this.ctx.fill();
 
         cc.tween(this)
             .to(0.5, {slidingAngle: angle}, {easing: 'quadInOut'})
-            .call(() => {this.sliding = false; cc.log("滑动完成")})
+            .call(() => {this.sliding = false; cc.log("滑动完成");})
             .start();
 
         //cc.log(angle);

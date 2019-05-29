@@ -447,7 +447,7 @@
       "__id__": 8
     },
     "_enabled": true,
-    "subdivisionLevel": 40,
+    "subdivisionLevel": 30,
     "chainJoint": {
       "__uuid__": "c351059a-1abc-4a67-a007-543e29d29964"
     },
@@ -458,7 +458,7 @@
     "springConstantBaseline": 0.005,
     "damping": 0.99,
     "iteration": 1,
-    "borderKnotAmount": 80,
+    "borderKnotAmount": 20,
     "_id": "79dEN7AWlEdacyKf6d21wp"
   },
   {
@@ -1106,7 +1106,7 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": 0,
+      "x": -100,
       "y": 0,
       "z": 0
     },

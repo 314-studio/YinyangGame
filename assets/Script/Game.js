@@ -97,7 +97,7 @@ cc.Class({
                 this.yangControlPad.getPosition().y);
             cc.log("右触摸节点大小：", this.yangControlPad.width,
                 this.yangControlPad.height);
-            manager.enabledDebugDraw = true;
+            //manager.enabledDebugDraw = true;
         }
 
         this.slidingTrackScript = this.slidingTrack.getComponent("SlidingTrack");
@@ -115,7 +115,7 @@ cc.Class({
 
         //加载音乐与节拍
         this.levelSongLoaded = false;
-        this.beginTempoCount = false;
+        this.beginGenerateHalo = false;
         this.tempoCount = 0;
         //this.loadMusicAndTempo(this.difficulty);
         this.levelEnded = false;
@@ -144,15 +144,18 @@ cc.Class({
         this.haloEmergeAnimDuration = this.halo.data.getComponent(cc.Animation).defaultClip.duration;
         //this.haloEmergeAnimDuration = 1.3;
 
-        if (Global.debug) {
-            this.scoreDisplay.string = Global.radius;
-        }
+        // if (Global.debug) {
+        //     this.scoreDisplay.string = Global.radius;
+        // }
 
         // this.scheduleOnce(function() {
         //     this.playCutsceneAnim();
         // }, 5);
 
         this.loadNextLevelSong();
+
+        this.right = true;
+        this.beginTempoCount = false;
     },
 
     update (dt) {
@@ -186,7 +189,7 @@ cc.Class({
         }
 
         this.audioID = cc.audioEngine.play(this.music, false, 1);
-        this.beginTempoCount = true;
+        this.beginGenerateHalo = true;
         this.yinyangFluid.getComponent("YinyangFluid").startGame();
         this.slidingTrackScript.playOpeningAnimation(false);
         this.levelCount++;
@@ -246,17 +249,18 @@ cc.Class({
         this.lastTempo = false;
         this.deltaTime = 0;
         this.tempoCount = 0;
-        this.beginTempoCount = false;
+        this.beginGenerateHalo = false;
     },
 
     generateHalo (dt) {
         //随音乐节拍生成光环
-        if (this.beginTempoCount) {
-            this.deltaTime += dt;
-            if (this.deltaTime >= this.tempo[this.tempoCount] - this.haloEmergeAnimDuration) {
+        if (this.beginGenerateHalo) {
+            var playedTime = cc.audioEngine.getCurrentTime(this.audioID);
+            //this.deltaTime += dt;
+            if (playedTime >= this.tempo[this.tempoCount] - this.haloEmergeAnimDuration) {
                 var clickPadControl = this.clickPad.getComponent("ClickPad"); //判定点击击中光环
                 if (this.lastTempo) {
-                    this.beginTempoCount = false;
+                    this.beginGenerateHalo = false;
                     let haloH  = cc.instantiate(this.halo);
                     let haloL = cc.instantiate(this.halo);
                     haloH.parent = this.node;
@@ -286,7 +290,7 @@ cc.Class({
                     if (this.levelCount != 0) {
                         this.playCutsceneAnim();
                     }
-                    this.beginTempoCount = false;
+                    this.beginGenerateHalo = false;
                 } else {
                     let pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
                     let halo = cc.instantiate(this.halo);
@@ -296,13 +300,15 @@ cc.Class({
                     haloScript.setSlidingTrack(this.slidingTrack);
                     haloScript.game = this;
 
-                    var rand = Math.random();
-                    if (rand < 0.5) {
+                    //var rand = Math.random();
+                    if (this.right) {
                         halo.setPosition(pos);
                         haloScript.play(true);
+                        this.right = false;
                     } else {
                         halo.setPosition(-pos.x, pos.y);
                         haloScript.play(false);
+                        this.right = true;
                     }
                     this.tempoCount++;
                 }
@@ -325,7 +331,7 @@ cc.Class({
         this.scheduleOnce(function() {
             this.progressBar.getComponent("ProgressBar").clear();
             //this.cameraScript.rotate(10);
-            var duration = 10;
+            var duration = 2;
             cc.tween(this.yinyangFluid)
             .to(duration, {angle: 720}, { easing: 'quadInOut'})
             .start();
@@ -338,7 +344,7 @@ cc.Class({
             //todo: 音乐结束的时间问题
             this.levelEnded = true;
             this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = false;
-        }, 22);
+        }, 14);
     },
 
     gainScore (score) {

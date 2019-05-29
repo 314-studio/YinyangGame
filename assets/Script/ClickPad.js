@@ -78,7 +78,7 @@ cc.Class({
 
         //todo:播放水波纹动画
 
-        //清空halos中失效的halo 和已经被点击过的haloå
+        //清空halos中失效的halo 和已经被点击过的halo
         var temp = new Array();
         for (var i = 0; i < this.halos.length; i++) {
             if (this.halos[i].active) {

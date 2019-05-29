@@ -50,6 +50,7 @@ cc.Class({
         } else {
             this.debugLabel.enabled = false;
         }
+        this.debugLabel.destroy();
     },
 
     update (dt) {
@@ -91,10 +92,10 @@ cc.Class({
             this.combinedForce = yinForce + yangForce;
 
             if (Global.debug) {
-                this.debugLabel.string = "disToYin: " + this.disToYin +
-                    " disToYang: " + this.disToYang + " yangForce: " +
-                    yangForce + " yinForce: " + yinForce + " confictMode: " +
-                    this.confictMode + " awayFromEye: " + this.awayFromEye;
+                // this.debugLabel.string = "disToYin: " + this.disToYin +
+                //     " disToYang: " + this.disToYang + " yangForce: " +
+                //     yangForce + " yinForce: " + yinForce + " confictMode: " +
+                //     this.confictMode + " awayFromEye: " + this.awayFromEye;
             }
 
             //实现小球被推走的效果
@@ -135,7 +136,7 @@ cc.Class({
         var ctx = this.getComponent(cc.Graphics);
         ctx.clear();
 
-        this.drawDebugInfo();
+        //this.drawDebugInfo();
 
         ctx.moveTo(0, 0);
         if (this.combinedForce > 0) {

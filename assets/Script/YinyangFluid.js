@@ -97,6 +97,8 @@ cc.Class({
         this.initBorderKnots();
 
         this.borderReseted = true;
+
+        this.delta = 0;
     },
 
     update (dt) {
@@ -116,6 +118,13 @@ cc.Class({
             }
 
             this.actionDelta += dt;
+            this.delta += dt;
+
+            if (this.delta >= 1) {
+                var count = Math.round(Math.random() * (this.borderKnotAmount - 1));
+                this.borderKnots[count].stripped = true;
+            }
+
             for (var i = 0; i < this.borderKnots.length; i++) {
                 this.borderKnots[i].update(this.actionDelta, dt);
             }
@@ -130,7 +139,7 @@ cc.Class({
             }
         }
 
-        //this.debugDraw();
+        this.debugDraw();
     },
 
     shake (positionY) {

@@ -240,7 +240,11 @@ cc.Class({
             this.progressBarScript.hit(false, this.isWhite, position, this.blockCount);
             this.progressBarScript.checkFail();
             this.animation.off('finished',this.onFinished,this);
+
+            
         }
+        //combo
+        this.game.calComboByHit(hitted);
     },
 
     //播放光环出现动画

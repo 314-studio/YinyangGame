@@ -97,7 +97,6 @@ cc.Class({
         this.tempoCount = 0;
         //this.loadMusicAndTempo(this.difficulty);
         this.levelEnded = false;
-        this.lastTempo = false;
 
         //得分
         this.score = 0;
@@ -117,6 +116,14 @@ cc.Class({
         //settings layout
         this.gamePauseView.getChildByName("layout").getComponent("Settings").game = this;
         this.musicOffset = 0;
+
+        //combo和得分倍数
+        this.comboNode = this.uiNode.getChildByName("Combo");
+        this.comboNode.active = false;
+        this.combo = 0;
+        this.magnificationNode = this.uiNode.getChildByName("Magnification");
+        this.magnificationNode.active = false;
+        this.magnification = 1;
     },
 
     start () {
@@ -136,9 +143,9 @@ cc.Class({
         //     this.scoreDisplay.string = Global.radius;
         // }
 
-        // this.scheduleOnce(function() {
-        //     this.playCutsceneAnim();
-        // }, 5);
+        this.scheduleOnce(function() {
+            this.playCutsceneAnim();
+        }, 5);
 
         this.loadNextLevelSong();
 
@@ -239,7 +246,6 @@ cc.Class({
     stopGenerateHalo () {
         //重置节拍计数
         this.tempoCount++;
-        this.lastTempo = false;
         this.deltaTime = 0;
         this.tempoCount = 0;
         this.beginGenerateHalo = false;
@@ -254,68 +260,47 @@ cc.Class({
                     this.haloEmergeAnimDuration + this.musicOffset) {
                 //todo: 更改clickpad
                 var touchPadControl = this.touchPad.getComponent("ClickPad"); //判定点击击中光环
-                if (this.lastTempo) {
-                    this.beginGenerateHalo = false;
-                    let haloH  = cc.instantiate(this.halo);
-                    let haloL = cc.instantiate(this.halo);
-                    haloH.parent = this.node;
-                    haloL.parent = this.node;
 
-                    touchPadControl.addHalo(haloH);
-                    touchPadControl.addHalo(haloL);
+                let pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
+                let halo = cc.instantiate(this.halo);
+                halo.parent = this.node;
+                touchPadControl.addHalo(halo);
+                var haloScript = halo.getComponent("Halo");
+                haloScript.setSlidingTrack(this.slidingTrack);
+                haloScript.game = this;
 
-                    haloH.getComponent("Halo").setSlidingTrack(this.slidingTrack);
-                    haloL.getComponent("Halo").setSlidingTrack(this.slidingTrack);
-                    haloH.getComponent("Halo").game = this;
-                    haloL.getComponent("Halo").game = this;
-
-                    haloH.setPosition(0, Global.radius);
-                    haloL.setPosition(0, -Global.radius);
-
-                    haloH.getComponent("Halo").play(false);
-                    haloL.getComponent("Halo").play(true);
-
-                    //重置节拍计数
-                    this.tempoCount++;
-                    this.lastTempo = false;
-                    this.deltaTime = 0;
-                    this.tempoCount = 0;
-
-                    //歌曲最后的两个环出现，歌曲结束，停止出圈与计分
-                    if (this.levelCount != 0) {
-                        this.playCutsceneAnim();
-                    }
-                    this.beginGenerateHalo = false;
+                //var rand = Math.random();
+                if (this.right) {
+                    halo.setPosition(pos);
+                    haloScript.play(true);
+                    this.right = false;
                 } else {
-                    let pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
-                    let halo = cc.instantiate(this.halo);
-                    halo.parent = this.node;
-                    touchPadControl.addHalo(halo);
-                    var haloScript = halo.getComponent("Halo");
-                    haloScript.setSlidingTrack(this.slidingTrack);
-                    haloScript.game = this;
-
-                    //var rand = Math.random();
-                    if (this.right) {
-                        halo.setPosition(pos);
-                        haloScript.play(true);
-                        this.right = false;
-                    } else {
-                        halo.setPosition(-pos.x, pos.y);
-                        haloScript.play(false);
-                        this.right = true;
-                    }
-                    this.tempoCount++;
+                    halo.setPosition(-pos.x, pos.y);
+                    haloScript.play(false);
+                    this.right = true;
                 }
+                this.tempoCount++;
             }
 
-            if (this.tempoCount == this.tempo.length - 1) {
-                this.lastTempo = true;
+            if (this.tempoCount == this.tempo.length) {
+                this.beginGenerateHalo = false;
+
+                //重置节拍计数
+                this.deltaTime = 0;
+                this.tempoCount = 0;
+
+                //歌曲最后的两个环出现，歌曲结束，停止出圈与计分
+                if (this.levelCount != 0) {
+                    this.playCutsceneAnim();
+                }
+                this.beginGenerateHalo = false;
             }
         }
     },
 
     playCutsceneAnim () {
+        this.slidingTrackScript.moveEyetoYinyang();
+
         this.uiNode.active = false;
 
         this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = true;
@@ -355,7 +340,9 @@ cc.Class({
 
         this.cameraScript.shake();
 
-        this.score += score;
+        if (this.magnification > 0) {
+            this.score += score * this.magnification;
+        }
         this.scoreDisplay.string = this.getScoreString(this.score);
     },
 
@@ -425,5 +412,67 @@ cc.Class({
 
     setMusicPlayOffset (offset) {
         this.musicOffset = offset;
+    },
+
+    calComboByHit (hitted) {
+        //var comboLabel = this.comboNode.getComponent(cc.Label);
+        if (hitted) {
+            this.combo++;
+        } else {
+            this.combo = 0;
+            cc.tween(this.comboNode)
+                .to(1, {opacity: 0})
+                .call(() => {this.comboNode.active = false})
+                .start();
+            this.magnification = 1;
+            this.onMagnificationChange();
+        }
+        this.comboNode.getComponent(cc.Label).string = "Combo: " + this.combo;
+        if (this.combo >= 4) {
+            if (!this.comboNode.active) {
+                this.comboNode.active = true;
+                this.comboNode.runAction(cc.fadeIn(1.0));
+            }
+            cc.tween(this.comboNode)
+            .to(0.2, {scale: 2})
+            .to(0.2, {scale: 1})
+            .start();
+
+            if (this.combo < 8) {
+                if (this.magnification != 2) {
+                    this.magnification = 2;
+                    this.onMagnificationChange();
+                }
+            } else if (this.combo < 16) {
+                if (this.magnification != 4) {
+                    this.magnification = 4;
+                    this.onMagnificationChange();
+                }
+            } else if (this.combo < 32) {
+                if (this.magnification != 8) {
+                    this.magnification = 8;
+                    this.onMagnificationChange();
+                }
+            }
+        }
+    },
+
+    onMagnificationChange () {
+        if (this.magnification > 1) {
+            if (!this.magnificationNode.active) {
+                this.magnificationNode.active = true;
+                this.magnificationNode.runAction(cc.fadeIn(1.0));
+            }
+            cc.tween(this.magnificationNode)
+            .to(0.2, {scale: 2})
+            .to(0.2, {scale: 1})
+            .start();
+        } else {
+            cc.tween(this.magnificationNode)
+            .to(1, {opacity: 0})
+            .call(() => {this.magnificationNode.active = false})
+            .start();
+        }
+        this.magnificationNode.getComponent(cc.Label).string = "X" + this.magnification;
     },
 });

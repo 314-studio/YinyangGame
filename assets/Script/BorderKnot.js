@@ -41,7 +41,7 @@ cc.Class({
         this.outOfBorder = false;
         this.delta = 0;
         this.stripped = false;
-        this.minimumDisengageDistance = 50;
+        this.minimumDisengageDistance = 20;
 
         var offset = 1;
         this.angle = Math.atan(this.y / this.x);
@@ -56,6 +56,7 @@ cc.Class({
         this.initialPosition = cc.v2(this.x, this.y);
 
         this.strippedTime = 2 +  Math.random() * (this.duration - 2);
+        //this.strippedTime = 50;
     },
 
     playAction (duration) {

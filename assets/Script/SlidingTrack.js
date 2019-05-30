@@ -123,6 +123,11 @@ cc.Class({
         }
     },
 
+    moveEyetoYinyang () {
+        this.touchMove = false;
+        this.slideTo(cc.v2(0, Global.radius));
+    },
+
     addPathPoint (point) {
         this.pathPoints.push(point);
     },

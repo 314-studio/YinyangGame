@@ -16,6 +16,11 @@ cc.Class({
             default: null,
             type: cc.Node
         },
+
+        waterRipple: {
+            default: null,
+            type: cc.Prefab
+        }
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -30,6 +35,14 @@ cc.Class({
         //this.node.setContentSize(winSize.width, winSize.height);
 
         this.gamePaused = false;
+
+        //波纹效果对象池
+        this.ripplePool = new cc.NodePool();
+        let initCount = 5;
+        for (let i = 0; i < initCount; ++i) {
+            let ripple = cc.instantiate(this.waterRipple);
+            this.ripplePool.put(ripple);
+        }
     },
 
     start () {
@@ -97,6 +110,8 @@ cc.Class({
         cc.log("clicked on " + location + " x: " + x+ " y: " + y);
 
         //todo:播放水波纹动画
+        this.createRipple(this.slidingTrack, cc.v2(x, y));
+        //cc.log(this.ripplePool);
 
         //清空halos中失效的halo 和已经被点击过的halo
         var temp = new Array();
@@ -170,4 +185,19 @@ cc.Class({
             //cc.log("yang");
         }
     },
+
+    createRipple: function (parentNode, position) {
+        let ripple = null;
+        if (this.ripplePool.size() > 0) {
+            ripple = this.ripplePool.get();
+        } else {
+            ripple = cc.instantiate(this.waterRipple);
+        }
+        ripple.parent = parentNode;
+        ripple.setPosition(position);
+        ripple.getComponent(cc.Animation).play();
+        ripple.getComponent(cc.Animation).on('finished', 
+            () => {this.ripplePool.put(ripple)}, this);
+    },
+
 });

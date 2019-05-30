@@ -143,14 +143,16 @@ cc.Class({
         //     this.scoreDisplay.string = Global.radius;
         // }
 
-        this.scheduleOnce(function() {
-            this.playCutsceneAnim();
-        }, 5);
+        // this.scheduleOnce(function() {
+        //     this.playCutsceneAnim();
+        // }, 5);
 
         this.loadNextLevelSong();
 
         this.right = true;
         this.beginTempoCount = false;
+
+        this.vibrationEnabled = true;
     },
 
     update (dt) {
@@ -185,16 +187,18 @@ cc.Class({
         this.progressBar.getComponent("ProgressBar").bulidProgressBar(this.tempo.length);
 
         this.uiNode.active = true;
+        this.combo = 0;
+        this.magnification = 1;
     },
 
     loadNextLevelSong () {
         var musicName = "";
         if (this.levelCount == 0) {
-            musicName = "青螺峪";
+            musicName = "回梦游仙";
         } else if (this.levelCount == 1) {
             musicName = "Limousine";
         } else {
-            musicName = "回梦游仙";
+            musicName = "青螺峪";
         }
         //todo: 更改音乐加载方式
         this.musicNameDisplay.string = musicName;
@@ -227,6 +231,8 @@ cc.Class({
         //重置得分
         this.score = 0;
         this.scoreDisplay.string = this.getScoreString(this.score);
+        this.combo = 0;
+        this.magnification = 1;
     },
 
     pauseGame () {
@@ -304,9 +310,9 @@ cc.Class({
         this.uiNode.active = false;
 
         this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = true;
-        this.scheduleOnce(function() {
-            this.cameraScript.shakeLong();
-        }, 1);
+        // this.scheduleOnce(function() {
+        //     this.cameraScript.shakeLong();
+        // }, 1);
         this.scheduleOnce(function() {
             this.progressBar.getComponent("ProgressBar").clear();
             //this.cameraScript.rotate(10);
@@ -438,21 +444,26 @@ cc.Class({
             .to(0.2, {scale: 1})
             .start();
 
-            if (this.combo < 8) {
-                if (this.magnification != 2) {
-                    this.magnification = 2;
-                    this.onMagnificationChange();
-                }
-            } else if (this.combo < 16) {
-                if (this.magnification != 4) {
-                    this.magnification = 4;
-                    this.onMagnificationChange();
-                }
-            } else if (this.combo < 32) {
-                if (this.magnification != 8) {
-                    this.magnification = 8;
-                    this.onMagnificationChange();
-                }
+            // if (this.combo < 8) {
+            //     if (this.magnification != 2) {
+            //         this.magnification = 2;
+            //         this.onMagnificationChange();
+            //     }
+            // } else if (this.combo < 16) {
+            //     if (this.magnification != 3) {
+            //         this.magnification = 3;
+            //         this.onMagnificationChange();
+            //     }
+            // } else if (this.combo < 32) {
+            //     if (this.magnification != 4) {
+            //         this.magnification = 4;
+            //         this.onMagnificationChange();
+            //     }
+            // }
+
+            if (this.combo >= this.magnification * 8) {
+                this.magnification++;
+                this.onMagnificationChange();
             }
         }
     },

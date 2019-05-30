@@ -12,17 +12,17 @@ cc.Class({
     //delta 是过场动画已经播放的时间
     update (delta) {
         var remainTime = this.duration - delta;
-        if (!this.stripped) {
-            if (delta >= this.strippedTime) {
-                this.stripped = true;
+
+        if (this.stripped) {
+            if (!this.acting) {
                 this.playAction(remainTime);
             }
-        } else {
+
             if (!this.previousKnot.stripped) {
                 var pValue = Math.abs(this.x - this.previousKnot.x) +
                     Math.abs(this.y - this.previousKnot.y);
                 if (pValue > this.minimumDisengageDistance) {
-                    this.previousKnot.strippedTime = delta;
+                    this.previousKnot.stripped = true;
                 }
             }
 
@@ -30,18 +30,40 @@ cc.Class({
                 var lValue = Math.abs(this.x - this.latterKnot.x) +
                     Math.abs(this.y - this.latterKnot.y);
                 if (lValue > this.minimumDisengageDistance) {
-                    this.latterKnot.strippedTime = delta;
+                    this.latterKnot.stripped = true;
                 }
             }
         }
+        // if (!this.stripped) {
+        //     if (delta >= this.strippedTime) {
+        //         this.stripped = true;
+        //         this.playAction(remainTime);
+        //     }
+        // } else {
+        //     if (!this.previousKnot.stripped) {
+        //         var pValue = Math.abs(this.x - this.previousKnot.x) +
+        //             Math.abs(this.y - this.previousKnot.y);
+        //         if (pValue > this.minimumDisengageDistance) {
+        //             this.previousKnot.strippedTime = delta;
+        //         }
+        //     }
+
+        //     if (!this.latterKnot.stripped) {
+        //         var lValue = Math.abs(this.x - this.latterKnot.x) +
+        //             Math.abs(this.y - this.latterKnot.y);
+        //         if (lValue > this.minimumDisengageDistance) {
+        //             this.latterKnot.strippedTime = delta;
+        //         }
+        //     }
+        // }
     },
 
     initiate (duration) {
         this.duration = duration;
-        this.outOfBorder = false;
         this.delta = 0;
         this.stripped = false;
-        this.minimumDisengageDistance = 20;
+        this.minimumDisengageDistance = 100;
+        this.acting = false;
 
         var offset = 1;
         this.angle = Math.atan(this.y / this.x);
@@ -55,7 +77,7 @@ cc.Class({
 
         this.initialPosition = cc.v2(this.x, this.y);
 
-        this.strippedTime = 2 +  Math.random() * (this.duration - 2);
+        //this.strippedTime = 2 +  Math.random() * (this.duration - 2);
         //this.strippedTime = 50;
     },
 
@@ -63,6 +85,7 @@ cc.Class({
         cc.tween(this)
             .to(duration, {x: this.destination.x, y: this.destination.y}, { easing: 'quadInOut'})
             .start();
+        this.acting = true;
     },
 
     reset () {

@@ -120,9 +120,12 @@ cc.Class({
             this.actionDelta += dt;
             this.delta += dt;
 
-            if (this.delta >= 1) {
+            if (this.delta >= 0.3) {
                 var count = Math.round(Math.random() * (this.borderKnotAmount - 1));
-                this.borderKnots[count].stripped = true;
+                if (!this.borderKnots[count].stripped) {
+                    this.borderKnots[count].stripped = true;
+                    this.delta = 0;
+                }
             }
 
             for (var i = 0; i < this.borderKnots.length; i++) {
@@ -132,14 +135,14 @@ cc.Class({
             //过场动画结束播放后，如果边界点没有重置，就重置边界点。
             if (!this.borderReseted) {
                 for (var i = 0; i < this.borderKnots.length; i++) {
-                    this.borderKnots[i].reset();
+                    //this.borderKnots[i].reset();
                 }
                 this.actionDelta = 0;
                 this.borderReseted = true;
             }
         }
 
-        this.debugDraw();
+        //this.debugDraw();
     },
 
     shake (positionY) {

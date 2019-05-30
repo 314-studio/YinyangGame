@@ -458,7 +458,7 @@
     "springConstantBaseline": 0.005,
     "damping": 0.99,
     "iteration": 1,
-    "borderKnotAmount": 40,
+    "borderKnotAmount": 80,
     "_id": "79dEN7AWlEdacyKf6d21wp"
   },
   {
@@ -889,6 +889,9 @@
     "slidingTrack": {
       "__id__": 11
     },
+    "waterRipple": {
+      "__uuid__": "b1858740-feac-4ad4-a325-76aa887362c8"
+    },
     "_id": "6e9FrkLuJFe7OqHz56PMIc"
   },
   {
@@ -974,7 +977,7 @@
       "__uuid__": "4858bcff-5c08-47bb-a6f7-e3824c978a44"
     },
     "topMargin": 10,
-    "maxFailPercent": 1,
+    "maxFailPercent": 0.2,
     "_id": "dfDlcJLjhAwIBs6LRiyQmS"
   },
   {
@@ -3593,7 +3596,7 @@
     },
     "_position": {
       "__type__": "cc.Vec3",
-      "x": -100,
+      "x": 0,
       "y": 0,
       "z": 0
     },
@@ -3838,7 +3841,7 @@
         "__uuid__": "16c6e3b7-cddb-4045-a482-e01876b363de"
       }
     ],
-    "playOnLoad": true,
+    "playOnLoad": false,
     "_id": "a97J+NjklBkaDDQWWdZRuW"
   },
   {

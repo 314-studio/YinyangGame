@@ -1,0 +1,32 @@
+{
+  "ver": "2.3.0",
+  "uuid": "d887155d-8320-4661-9e7e-7fa20e9e00bf",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "platformSettings": {},
+  "subMetas": {
+    "Use Headphones": {
+      "ver": "1.0.4",
+      "uuid": "d2d6838f-6192-48af-bb29-f1f3179a1aa4",
+      "rawTextureUuid": "d887155d-8320-4661-9e7e-7fa20e9e00bf",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0.5,
+      "offsetY": 64.5,
+      "trimX": 38,
+      "trimY": 360,
+      "width": 925,
+      "height": 151,
+      "rawWidth": 1000,
+      "rawHeight": 1000,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

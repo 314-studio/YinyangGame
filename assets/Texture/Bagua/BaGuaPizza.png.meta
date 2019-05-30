@@ -1,0 +1,32 @@
+{
+  "ver": "2.3.0",
+  "uuid": "7bb17aae-431f-4d78-9840-6d4aacb072e1",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "premultiplyAlpha": false,
+  "platformSettings": {},
+  "subMetas": {
+    "BaGuaPizza": {
+      "ver": "1.0.4",
+      "uuid": "062163c0-fe14-4e3a-8c7c-36b6224e2d6e",
+      "rawTextureUuid": "7bb17aae-431f-4d78-9840-6d4aacb072e1",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 295,
+      "offsetY": -0.5,
+      "trimX": 621,
+      "trimY": 322,
+      "width": 348,
+      "height": 357,
+      "rawWidth": 1000,
+      "rawHeight": 1000,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

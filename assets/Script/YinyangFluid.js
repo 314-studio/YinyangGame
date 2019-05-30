@@ -139,7 +139,7 @@ cc.Class({
             }
         }
 
-        this.debugDraw();
+        //this.debugDraw();
     },
 
     shake (positionY) {

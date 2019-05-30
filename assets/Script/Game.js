@@ -143,9 +143,9 @@ cc.Class({
         //     this.scoreDisplay.string = Global.radius;
         // }
 
-        this.scheduleOnce(function() {
-            this.playCutsceneAnim();
-        }, 5);
+        // this.scheduleOnce(function() {
+        //     this.playCutsceneAnim();
+        // }, 5);
 
         this.loadNextLevelSong();
 

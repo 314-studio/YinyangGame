@@ -9,50 +9,8 @@
   "wrapMode": 2,
   "curveData": {
     "paths": {
-      "阴阳小球黑": {
-        "props": {
-          "angle": [
-            {
-              "frame": 0.05,
-              "value": 0,
-              "curve": "cubicInOut"
-            },
-            {
-              "frame": 0.13333333333333333,
-              "value": 30,
-              "curve": "cubicInOut"
-            },
-            {
-              "frame": 0.21666666666666667,
-              "value": 0
-            },
-            {
-              "frame": 0.3,
-              "value": 0,
-              "curve": "cubicInOut"
-            },
-            {
-              "frame": 0.36666666666666664,
-              "value": -30,
-              "curve": "cubicInOut"
-            },
-            {
-              "frame": 0.4166666666666667,
-              "value": 0
-            },
-            {
-              "frame": 0.5,
-              "value": 0,
-              "curve": "cubicInOut"
-            },
-            {
-              "frame": 0.75,
-              "value": -360
-            }
-          ]
-        }
-      },
-      "阴阳小球白": {
+      "dripW": {
+        "comps": {},
         "props": {
           "angle": [
             {
@@ -76,6 +34,50 @@
             },
             {
               "frame": 0.3333333333333333,
+              "value": -30,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.4166666666666667,
+              "value": 0
+            },
+            {
+              "frame": 0.5,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.75,
+              "value": -360
+            }
+          ]
+        }
+      },
+      "dripB": {
+        "comps": {},
+        "props": {
+          "angle": [
+            {
+              "frame": 0.05,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.13333333333333333,
+              "value": 30,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.21666666666666667,
+              "value": 0
+            },
+            {
+              "frame": 0.3,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.36666666666666664,
               "value": -30,
               "curve": "cubicInOut"
             },

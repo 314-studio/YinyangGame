@@ -271,9 +271,9 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
-      "z": 1
+      "x": 1.595,
+      "y": 1.414,
+      "z": 1.414
     },
     "_quat": {
       "__type__": "cc.Quat",
@@ -1608,10 +1608,8 @@
     "_fontSize": 40,
     "_lineHeight": 40,
     "_enableWrapText": true,
-    "_N$file": {
-      "__uuid__": "5f9f7512-e740-4f72-a0ef-3e1053ac75f4"
-    },
-    "_isSystemFontUsed": false,
+    "_N$file": null,
+    "_isSystemFontUsed": true,
     "_spacingX": 0,
     "_batchAsBitmap": false,
     "_N$horizontalAlign": 1,

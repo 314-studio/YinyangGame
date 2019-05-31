@@ -62,7 +62,7 @@ cc.Class({
         this.duration = duration;
         this.delta = 0;
         this.stripped = false;
-        this.minimumDisengageDistance = 100;
+        this.minimumDisengageDistance = 180;
         this.acting = false;
 
         var offset = 1;

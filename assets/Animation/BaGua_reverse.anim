@@ -1,0 +1,693 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "BaGua_reverse",
+  "_objFlags": 0,
+  "_native": "",
+  "_duration": 0.6333333333333333,
+  "sample": 60,
+  "speed": 0.2,
+  "wrapMode": 36,
+  "curveData": {
+    "paths": {
+      "BaGuaPizza_1": {
+        "props": {
+          "position": [
+            {
+              "frame": 0,
+              "value": [
+                400.563,
+                0,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": [
+                -5.58,
+                0,
+                0
+              ]
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "BaGuaPizza_2": {
+        "props": {
+          "position": [
+            {
+              "frame": 0,
+              "value": [
+                289.27,
+                289.27,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": [
+                -4.099,
+                -4.099,
+                0
+              ]
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "BaGuaPizza_3": {
+        "props": {
+          "position": [
+            {
+              "frame": 0,
+              "value": [
+                0,
+                399.43,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": [
+                0,
+                -5.737,
+                0
+              ]
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "BaGuaPizza_4": {
+        "props": {
+          "position": [
+            {
+              "frame": 0,
+              "value": [
+                -297.478,
+                297.478,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": [
+                4.303,
+                -4.303,
+                0
+              ]
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "BaGuaPizza_5": {
+        "props": {
+          "position": [
+            {
+              "frame": 0,
+              "value": [
+                -402.481,
+                0,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": [
+                6.49,
+                0,
+                0
+              ]
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "BaGuaPizza_6": {
+        "props": {
+          "position": [
+            {
+              "frame": 0,
+              "value": [
+                -298.556,
+                -298.556,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": [
+                3.571,
+                3.571,
+                0
+              ]
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "BaGuaPizza_7": {
+        "props": {
+          "position": [
+            {
+              "frame": 0,
+              "value": [
+                0,
+                -403.129,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": [
+                0,
+                5.737,
+                0
+              ]
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "BaGuaPizza_8": {
+        "props": {
+          "position": [
+            {
+              "frame": 0,
+              "value": [
+                301.92,
+                -301.92,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": [
+                -3.825,
+                3.825,
+                0
+              ]
+            }
+          ],
+          "opacity": [
+            {
+              "frame": 0,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "乾": {
+        "props": {
+          "opacity": [
+            {
+              "frame": 0.35,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.4666666666666667,
+              "value": 255
+            }
+          ],
+          "position": [
+            {
+              "frame": 0.35,
+              "value": [
+                0,
+                192.098,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.4666666666666667,
+              "value": [
+                0,
+                -5.651,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      "兌": {
+        "props": {
+          "opacity": [
+            {
+              "frame": 0.4666666666666667,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5833333333333334,
+              "value": 255
+            }
+          ],
+          "position": [
+            {
+              "frame": 0.4666666666666667,
+              "value": [
+                -137.137,
+                132.981,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5833333333333334,
+              "value": [
+                2.078,
+                -4.156,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      "坎": {
+        "props": {
+          "opacity": [
+            {
+              "frame": 0.35,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.4666666666666667,
+              "value": 255
+            }
+          ],
+          "position": [
+            {
+              "frame": 0.35,
+              "value": [
+                193.238,
+                0,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.4666666666666667,
+              "value": [
+                -4.156,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      "坤": {
+        "props": {
+          "opacity": [
+            {
+              "frame": 0.35,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.4666666666666667,
+              "value": 255
+            }
+          ],
+          "position": [
+            {
+              "frame": 0.35,
+              "value": [
+                0,
+                -193.858,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.4666666666666667,
+              "value": [
+                0,
+                4.908,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      "艮": {
+        "props": {
+          "opacity": [
+            {
+              "frame": 0.4666666666666667,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5833333333333334,
+              "value": 255
+            }
+          ],
+          "position": [
+            {
+              "frame": 0.4666666666666667,
+              "value": [
+                139.872,
+                -132.511,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5833333333333334,
+              "value": [
+                -3.263,
+                4.55,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      "巽": {
+        "props": {
+          "opacity": [
+            {
+              "frame": 0.4666666666666667,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5833333333333334,
+              "value": 255
+            }
+          ],
+          "position": [
+            {
+              "frame": 0.4666666666666667,
+              "value": [
+                137.419,
+                134.965,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5833333333333334,
+              "value": [
+                -4.003,
+                -3.358,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      "離": {
+        "props": {
+          "opacity": [
+            {
+              "frame": 0.35,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.4666666666666667,
+              "value": 255
+            }
+          ],
+          "position": [
+            {
+              "frame": 0.35,
+              "value": [
+                -193.858,
+                0,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.4666666666666667,
+              "value": [
+                3.204,
+                -1.068,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      "震": {
+        "props": {
+          "opacity": [
+            {
+              "frame": 0.4666666666666667,
+              "value": 0,
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5833333333333334,
+              "value": 255
+            }
+          ],
+          "position": [
+            {
+              "frame": 0.4666666666666667,
+              "value": [
+                -137.952,
+                -135.67,
+                0
+              ],
+              "curve": "cubicInOut"
+            },
+            {
+              "frame": 0.5833333333333334,
+              "value": [
+                2.799,
+                3.322,
+                0
+              ]
+            }
+          ]
+        }
+      },
+      "黑环": {
+        "props": {
+          "opacity": [
+            {
+              "frame": 0.4166666666666667,
+              "value": 0
+            },
+            {
+              "frame": 0.5,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "乾t": {
+        "props": {
+          "position": [],
+          "opacity": [
+            {
+              "frame": 0.4666666666666667,
+              "value": 0
+            },
+            {
+              "frame": 0.5166666666666667,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "兌t": {
+        "props": {
+          "position": [],
+          "opacity": [
+            {
+              "frame": 0.5833333333333334,
+              "value": 0
+            },
+            {
+              "frame": 0.6333333333333333,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "坎t": {
+        "props": {
+          "position": [],
+          "opacity": [
+            {
+              "frame": 0.4666666666666667,
+              "value": 0
+            },
+            {
+              "frame": 0.5166666666666667,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "坤t": {
+        "props": {
+          "position": [],
+          "opacity": [
+            {
+              "frame": 0.4666666666666667,
+              "value": 0
+            },
+            {
+              "frame": 0.5166666666666667,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "巽t": {
+        "props": {
+          "position": [],
+          "opacity": [
+            {
+              "frame": 0.5833333333333334,
+              "value": 0
+            },
+            {
+              "frame": 0.6333333333333333,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "艮t": {
+        "props": {
+          "position": [],
+          "opacity": [
+            {
+              "frame": 0.5833333333333334,
+              "value": 0
+            },
+            {
+              "frame": 0.6333333333333333,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "離t": {
+        "props": {
+          "position": [],
+          "opacity": [
+            {
+              "frame": 0.4666666666666667,
+              "value": 0
+            },
+            {
+              "frame": 0.5166666666666667,
+              "value": 255
+            }
+          ]
+        }
+      },
+      "震t": {
+        "props": {
+          "position": [],
+          "opacity": [
+            {
+              "frame": 0.5833333333333334,
+              "value": 0
+            },
+            {
+              "frame": 0.6333333333333333,
+              "value": 255
+            }
+          ]
+        }
+      }
+    }
+  },
+  "events": []
+}

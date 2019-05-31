@@ -20,7 +20,7 @@ cc.Class({
     // onLoad () {},
 
     start () {
-       // cc.director.loadScene("Game");
+       cc.director.loadScene("Game");
     },
 
     // update (dt) {},

@@ -60,6 +60,11 @@ cc.Class({
             type: cc.Node
         },
 
+        bagua: {
+            default: null,
+            type: cc.Prefab
+        },
+
         velocityMapping: true,
 
         difficulty: 'D',
@@ -136,16 +141,18 @@ cc.Class({
         this.touching = false;
         cc.log(cc.sys.dump());
         this.deltaTime = 0;
-        this.haloEmergeAnimDuration = this.halo.data.getComponent(cc.Animation).defaultClip.duration;
+        this.haloEmergeAnimDuration = 
+            this.halo.data.getComponent(cc.Animation).defaultClip.duration - 0.4;
         //this.haloEmergeAnimDuration = 1.3;
 
         // if (Global.debug) {
         //     this.scoreDisplay.string = Global.radius;
         // }
 
+        //debug
         // this.scheduleOnce(function() {
         //     this.playCutsceneAnim();
-        // }, 5);
+        // }, 2);
 
         this.loadNextLevelSong();
 
@@ -194,8 +201,10 @@ cc.Class({
     loadNextLevelSong () {
         var musicName = "";
         if (this.levelCount == 0) {
-            musicName = "回梦游仙";
+            musicName = "Lost Sky";
         } else if (this.levelCount == 1) {
+            musicName = "回梦游仙";
+        } else if (this.levelCount == 2) {
             musicName = "Limousine";
         } else {
             musicName = "青螺峪";
@@ -238,15 +247,28 @@ cc.Class({
     pauseGame () {
         cc.audioEngine.pause(this.audioID);
         this.uiNode.getChildByName("Pause").active = false;
-        this.scheduleOnce(function() {
-            this.gamePauseView.active = true;
-        }, this.haloEmergeAnimDuration);
+        var halos = this.touchPad.getComponent("ClickPad").halos;
+        for (let i = 0; i < halos.length; i++) {
+            if (halos[i].active) {
+                halos[i].getComponent(cc.Animation).pause();
+            }
+        }
+        this.gamePauseView.active = true;
     },
 
     resumeGame () {
-        cc.audioEngine.resume(this.audioID);
+        
         this.uiNode.getChildByName("Pause").active = true;
         this.gamePauseView.active = false;
+        var halos = this.touchPad.getComponent("ClickPad").halos;
+        this.scheduleOnce(function() {
+            cc.audioEngine.resume(this.audioID);
+            for (let i = 0; i < halos.length; i++) {
+                if (halos[i].active) {
+                    halos[i].getComponent(cc.Animation).resume();
+                }
+            }
+        }, 0.5);
     },
 
     stopGenerateHalo () {
@@ -269,7 +291,7 @@ cc.Class({
 
                 let pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
                 let halo = cc.instantiate(this.halo);
-                halo.parent = this.node;
+                halo.parent = this.slidingTrack;
                 touchPadControl.addHalo(halo);
                 var haloScript = halo.getComponent("Halo");
                 haloScript.setSlidingTrack(this.slidingTrack);
@@ -295,41 +317,56 @@ cc.Class({
                 this.deltaTime = 0;
                 this.tempoCount = 0;
 
-                //歌曲最后的两个环出现，歌曲结束，停止出圈与计分
-                if (this.levelCount != 0) {
-                    this.playCutsceneAnim();
-                }
-                this.beginGenerateHalo = false;
+                this.scheduleOnce(function() {
+                    //歌曲最后的两个环出现，歌曲结束，停止出圈与计分
+                    if (this.levelCount != 0) {
+                        this.playCutsceneAnim();
+                    }
+                }, this.haloEmergeAnimDuration + 1);
             }
         }
     },
 
     playCutsceneAnim () {
-        this.slidingTrackScript.moveEyetoYinyang();
-
         this.uiNode.active = false;
+        this.touchPad.active = false;
 
         this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = true;
         // this.scheduleOnce(function() {
         //     this.cameraScript.shakeLong();
         // }, 1);
+        var bagua = null;
         this.scheduleOnce(function() {
+            bagua = cc.instantiate(this.bagua);
+            bagua.parent = this.node;
+        }, 1);
+        this.scheduleOnce(function() {
+            this.slidingTrackScript.moveEyetoYinyang();
+            this.cameraScript.playCutsceneAnim(true);
             this.progressBar.getComponent("ProgressBar").clear();
             //this.cameraScript.rotate(10);
-            var duration = 2;
+            var duration = 4;
             cc.tween(this.yinyangFluid)
-            .to(duration, {angle: 720}, { easing: 'quadInOut'})
+            .by(duration, {angle: 720})
+            .repeat(3)
             .start();
             cc.tween(this.slidingTrack)
-            .to(duration, {angle: 720}, { easing: 'quadInOut'})
+            .by(duration, {angle: 720})
+            .repeat(3)
             .start();
             this.deltaTime = 0;
-        }, 12);
+        }, 4);
+        this.scheduleOnce(function() {
+            //bagua.getComponent(cc.Animation).defaultClip.wrapMode = cc.WrapMode.Reverse;
+            bagua.getComponent(cc.Animation).play("BaGua_reverse");
+        }, 15);
         this.scheduleOnce(function() {
             //todo: 音乐结束的时间问题
             this.levelEnded = true;
             this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = false;
-        }, 14);
+
+            this.touchPad.active = true;
+        }, 16);
     },
 
     gainScore (score) {

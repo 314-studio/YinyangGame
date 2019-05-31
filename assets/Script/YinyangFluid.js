@@ -135,7 +135,7 @@ cc.Class({
             //过场动画结束播放后，如果边界点没有重置，就重置边界点。
             if (!this.borderReseted) {
                 for (var i = 0; i < this.borderKnots.length; i++) {
-                    //this.borderKnots[i].reset();
+                    this.borderKnots[i].reset();
                 }
                 this.actionDelta = 0;
                 this.borderReseted = true;

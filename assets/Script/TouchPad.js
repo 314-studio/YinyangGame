@@ -19,32 +19,34 @@ cc.Class({
     // LIFE-CYCLE CALLBACKS:
 
     onLoad () {
-        var windowSize = cc.winSize;
-        this.node.setContentSize(windowSize.width / 2, windowSize.height);
+        // var windowSize = cc.winSize;
+        // this.node.setContentSize(windowSize.width / 2, windowSize.height);
 
-        this.padPressed = false;
-        this.isYinTouchPad = false;
-        this.controlPaused = false;
-        this.angle = 0;
-        this.radius = Global.radius;
-        this.startAngle = 0;
-        this.offset = 1;
+        // this.padPressed = false;
+        // this.isYinTouchPad = false;
+        // this.controlPaused = false;
+        // this.angle = 0;
+        // this.radius = Global.radius;
+        // this.startAngle = 0;
+        // this.offset = 1;
 
-        this.eyeCollided = false;
-        this.eyeCollidedPause = true;
+        // this.eyeCollided = false;
+        // this.eyeCollidedPause = true;
 
-        this.initEventListener();
+        // this.initEventListener();
+
+        //该类暂时被弃用转到ClickPad
     },
 
     start () {
-        this.yangEye = this.slidingTrack.getChildByName("Yang");
-        this.yinEye = this.slidingTrack.getChildByName("Yin");
-        this.collisionScript = this.yangEye.getComponent("EyeCollisionCtrl");
+        // this.yangEye = this.slidingTrack.getChildByName("Yang");
+        // this.yinEye = this.slidingTrack.getChildByName("Yin");
+        // this.collisionScript = this.yangEye.getComponent("EyeCollisionCtrl");
 
-        var temp = Math.PI / 180;
-        this.angle90 = 90 * temp;
-        this.angle90Plus = this.angle90 + 0.01;
-        this.angle270 = 270 * temp;
+        // var temp = Math.PI / 180;
+        // this.angle90 = 90 * temp;
+        // this.angle90Plus = this.angle90 + 0.01;
+        // this.angle270 = 270 * temp;
     },
 
     update (dt) {

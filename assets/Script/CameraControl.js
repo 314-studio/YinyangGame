@@ -76,4 +76,14 @@ cc.Class({
             .to(shakeDuration, {x: 0, y: 0}))
             .start();
     },
+
+    playCutsceneAnim (cameraIn) {
+        if (cameraIn) {
+            cc.tween(this.camera)
+                .to(2, {zoomRatio: 0.25}, { easing: 'quadInOut'})
+                .delay(6)
+                .to(2, {zoomRatio: 1}, { easing: 'quadInOut'})
+                .start();
+        }
+    }
 });

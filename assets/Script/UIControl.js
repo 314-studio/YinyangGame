@@ -12,7 +12,10 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-
+        alertBox: {
+            default: null,
+            type: cc.Prefab
+        }
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -25,17 +28,42 @@ cc.Class({
     },
 
     start () {
-        this.restartGameBtn.active = false;
+        //this.restartGameBtn.active = false;
     },
 
     onRestartClicked: function (button) {
         cc.log("button clicked!");
-        this.game.restartGame();
+        //this.game.restartGame();
+        this.game.pauseGame(false);
+        this.alert("确定要重新开始游戏吗？");
     },
 
     onPauseClicked: function (pauseBtn) {
         cc.log("button pause clicked!");
-        this.game.pauseGame();
+        this.game.pauseGame(true);
+    },
+
+    alert (message) {
+        var emptyNode = new cc.Node();
+        var alertBox = cc.instantiate(this.alertBox);
+        alertBox.getChildByName("Message").getComponent(cc.Label).string = message;
+        alertBox.getChildByName("Yes").on('click', ()=>{
+            this.game.resumeGame(true);
+            this.game.restartGame();
+            emptyNode.destroy();
+            alertBox.destroy();
+        }, this);
+        alertBox.getChildByName("No").on('click', ()=>{
+            this.game.resumeGame(false);
+            emptyNode.destroy();
+            alertBox.destroy();
+        }, this);
+
+        emptyNode.width = cc.winSize.width;
+        emptyNode.height = cc.winSize.height;
+
+        emptyNode.parent = this.node;
+        alertBox.parent = this.node;
     },
 
     // update (dt) {},

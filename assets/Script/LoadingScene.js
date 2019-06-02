@@ -12,12 +12,39 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        halo: {
+            default: null,
+            type: cc.Node
+        },
 
+        halo2: {
+            default: null,
+            type: cc.Node
+        },
+
+        camera: {
+            default: null,
+            type: cc.Camera
+        },
+
+        touch: {
+            default: null,
+            type: cc.Node
+        }
     },
 
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {},
+    onLoad () {
+        this.touch.on ('touchstart', function (event) {
+            if (this.halo.opacity > 0 || this.halo2.opacity > 0) {
+                cc.tween(this.camera)
+                    .to(0.1, {zoomRatio: 1.2})
+                    .to(0.1, {zoomRatio: 1})
+                    .start();
+            }
+        }, this);
+    },
 
     start () {
        cc.director.loadScene("Game");

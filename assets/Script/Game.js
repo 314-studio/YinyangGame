@@ -65,6 +65,11 @@ cc.Class({
             type: cc.Prefab
         },
 
+        songs: {
+            default: null,
+            type: cc.JsonAsset
+        },
+
         velocityMapping: true,
 
         difficulty: 'D',
@@ -74,21 +79,13 @@ cc.Class({
 
     onLoad () {
         //点击来操作小球时不需要检测碰撞
-        // var manager = cc.director.getCollisionManager();
-        // manager.enabled = true;
+        var manager = cc.director.getCollisionManager();
+        manager.enabled = true;
 
         //初始化触摸节点
         var windowSize = cc.winSize;
         Global.debug = this.debug;
         Global.radius = Math.round(windowSize.height / 4);
-
-        if (Global.debug) {
-            cc.log("右触摸节点x位置：", this.yangControlPad.getPosition().x,
-                this.yangControlPad.getPosition().y);
-            cc.log("右触摸节点大小：", this.yangControlPad.width,
-                this.yangControlPad.height);
-            //manager.enabledDebugDraw = true;
-        }
 
         this.slidingTrackScript = this.slidingTrack.getComponent("SlidingTrack");
 
@@ -100,7 +97,6 @@ cc.Class({
         this.levelSongLoaded = false;
         this.beginGenerateHalo = false;
         this.tempoCount = 0;
-        //this.loadMusicAndTempo(this.difficulty);
         this.levelEnded = false;
 
         //得分
@@ -115,7 +111,7 @@ cc.Class({
         this.gamePauseView.active = false;
         this.gamePauseView.setContentSize(cc.winSize.width, cc.winSize.height);
         this.gamePauseView.on('touchend', function (event) {
-            this.resumeGame();
+            this.resumeGame(false);
         }, this);
 
         //settings layout
@@ -143,11 +139,6 @@ cc.Class({
         this.deltaTime = 0;
         this.haloEmergeAnimDuration = 
             this.halo.data.getComponent(cc.Animation).defaultClip.duration - 0.4;
-        //this.haloEmergeAnimDuration = 1.3;
-
-        // if (Global.debug) {
-        //     this.scoreDisplay.string = Global.radius;
-        // }
 
         //debug
         // this.scheduleOnce(function() {
@@ -176,16 +167,8 @@ cc.Class({
         }
     },
 
-    startGame () {
-        // cc.tween(this.slidingTrack)
-        //     .to(1, {scale: 1.4}, { easing: 'quadInOut'})
-        //     .start();
-        // cc.tween(this.yinyangFluid)
-        //     .to(1, {scale: 1.4}, { easing: 'quadInOut'})
-        //     .start();
-    },
-
     startNextLevel () {
+        cc.audioEngine.stop(this.audioEngine);
         this.audioID = cc.audioEngine.play(this.music, false, 1);
         this.beginGenerateHalo = true;
         this.yinyangFluid.getComponent("YinyangFluid").startGame();
@@ -199,20 +182,27 @@ cc.Class({
     },
 
     loadNextLevelSong () {
+        var songs = this.songs.json;
         var musicName = "";
-        if (this.levelCount == 0) {
-            musicName = "Lost Sky";
-        } else if (this.levelCount == 1) {
-            musicName = "回梦游仙";
-        } else if (this.levelCount == 2) {
-            musicName = "Limousine";
-        } else {
-            musicName = "青螺峪";
-        }
-        //todo: 更改音乐加载方式
-        this.musicNameDisplay.string = musicName;
+        var singerLabel = this.uiNode.getChildByName("Singer").getComponent(cc.Label);
 
-        this.loadMusicAndTempo(musicName, 'D');
+        if (this.levelCount < songs.length) {
+            musicName = songs[this.levelCount].name;
+            singerLabel.string = songs[this.levelCount].author;
+        } else {
+            var count = Math.round(Math.random() * (this.songs.length - 1));
+            musicName = songs[count].name;
+            singerLabel.string = songs[count].author;
+        }
+
+        this.musicNameDisplay.string = musicName;
+        var difficulty = 'D';
+        if (musicName == "Limousine") {
+            difficulty = 'S';
+            singerLabel.string = " ";
+        }
+
+        this.loadMusicAndTempo(musicName, difficulty);
     },
 
     endGame () {
@@ -228,11 +218,16 @@ cc.Class({
         this.wechatRanking.getComponent("RankingView").showRanking(this.score);
         this.levelCount = 0;
 
-        this.uiNode.getComponent("UIControl").restartGameBtn.active = true;
+        this.uiNode.getComponent("UIControl").pauseBtn.active = false;
     },
 
     restartGame () {
+        //重置关卡
+        this.levelCount = 0;
+        this.stopGenerateHalo();
+
         this.wechatRanking.active = false;
+        this.uiNode.getComponent("UIControl").pauseBtn.active = true;
         this.progressBar.getComponent("ProgressBar").clear();
         this.uiNode.active = false;
         this.loadNextLevelSong();
@@ -244,7 +239,7 @@ cc.Class({
         this.magnification = 1;
     },
 
-    pauseGame () {
+    pauseGame (showPauseView) {
         cc.audioEngine.pause(this.audioID);
         this.uiNode.getChildByName("Pause").active = false;
         var halos = this.touchPad.getComponent("ClickPad").halos;
@@ -253,10 +248,17 @@ cc.Class({
                 halos[i].getComponent(cc.Animation).pause();
             }
         }
-        this.gamePauseView.active = true;
+        if (showPauseView) {
+            this.gamePauseView.active = true;
+        }
+        this.uiNode.getComponent("UIControl").restartGameBtn.active = false;
     },
 
-    resumeGame () {
+    resumeGame (rightAway) {
+        var delay = 0.5;
+        if (rightAway) {
+            delay = 0;
+        }
         
         this.uiNode.getChildByName("Pause").active = true;
         this.gamePauseView.active = false;
@@ -265,15 +267,18 @@ cc.Class({
             cc.audioEngine.resume(this.audioID);
             for (let i = 0; i < halos.length; i++) {
                 if (halos[i].active) {
+                    if (rightAway) {
+                        halos[i].destroy();
+                    }
                     halos[i].getComponent(cc.Animation).resume();
                 }
             }
-        }, 0.5);
+        }, delay);
+        this.uiNode.getComponent("UIControl").restartGameBtn.active = true;
     },
 
     stopGenerateHalo () {
         //重置节拍计数
-        this.tempoCount++;
         this.deltaTime = 0;
         this.tempoCount = 0;
         this.beginGenerateHalo = false;
@@ -370,14 +375,14 @@ cc.Class({
     },
 
     gainScore (score) {
-        // TODO: 判断平台，处理震动效果
-        if (cc.sys.isMobile) {
-            if (this.vibrationEnabled) {
-            wx.vibrateShort({
-                success: function () {
-                    console.log('震动成功！');
-                }
-            });
+        //判断平台，处理震动效果
+        if (this.vibrationEnabled) {
+            if (cc.sys.platform == cc.sys.WECHAT_GAME) {
+                wx.vibrateShort({
+                    success: function () {
+                        console.log('震动成功！');
+                    }
+                });
             }
         }
 
@@ -480,23 +485,6 @@ cc.Class({
             .to(0.2, {scale: 2})
             .to(0.2, {scale: 1})
             .start();
-
-            // if (this.combo < 8) {
-            //     if (this.magnification != 2) {
-            //         this.magnification = 2;
-            //         this.onMagnificationChange();
-            //     }
-            // } else if (this.combo < 16) {
-            //     if (this.magnification != 3) {
-            //         this.magnification = 3;
-            //         this.onMagnificationChange();
-            //     }
-            // } else if (this.combo < 32) {
-            //     if (this.magnification != 4) {
-            //         this.magnification = 4;
-            //         this.onMagnificationChange();
-            //     }
-            // }
 
             if (this.combo >= this.magnification * 8) {
                 this.magnification++;

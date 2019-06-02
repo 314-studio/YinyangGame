@@ -44,9 +44,11 @@ cc.Class({
     },
 
     onSliderChanged: function (slider) {
+        //暂且不调整音乐时间偏差
         var offset = slider.progress - 0.5;
         offset = offset.toFixed(1);
-        this.game.setMusicPlayOffset(offset);
+        // this.game.setMusicPlayOffset(offset);
+
         if (offset > 0) {
             this.musicOffsetLabel.string = "+" + offset + "s";
         } else {

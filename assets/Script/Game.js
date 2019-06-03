@@ -70,6 +70,11 @@ cc.Class({
             type: cc.JsonAsset
         },
 
+        readyGo: {
+            default: null,
+            type: cc.Prefab
+        },
+
         velocityMapping: true,
 
         difficulty: 'D',
@@ -186,11 +191,12 @@ cc.Class({
         var musicName = "";
         var singerLabel = this.uiNode.getChildByName("Singer").getComponent(cc.Label);
 
+        
         if (this.levelCount < songs.length) {
             musicName = songs[this.levelCount].name;
             singerLabel.string = songs[this.levelCount].author;
         } else {
-            var count = Math.round(Math.random() * (this.songs.length - 1));
+            var count = Math.round(Math.random() * (songs.length - 1));
             musicName = songs[count].name;
             singerLabel.string = songs[count].author;
         }
@@ -237,6 +243,7 @@ cc.Class({
         this.scoreDisplay.string = this.getScoreString(this.score);
         this.combo = 0;
         this.magnification = 1;
+        //this.magnificationNode.getComponent(cc.Label).string = "X" + this.magnification;
     },
 
     pauseGame (showPauseView) {
@@ -256,10 +263,18 @@ cc.Class({
 
     resumeGame (rightAway) {
         var delay = 0.5;
+        var readyGo = null;
         if (rightAway) {
             delay = 0;
+        } else {
+            //防止在结束游戏页面出现readygo
+            if (this.gameStarted) {
+                readyGo = cc.instantiate(this.readyGo);
+                readyGo.parent = this.node;
+            }
         }
         
+        //cc.log(readyGo);
         this.uiNode.getChildByName("Pause").active = true;
         this.gamePauseView.active = false;
         var halos = this.touchPad.getComponent("ClickPad").halos;
@@ -272,6 +287,9 @@ cc.Class({
                     }
                     halos[i].getComponent(cc.Animation).resume();
                 }
+            }
+            if (!rightAway && this.gameStarted) {
+                readyGo.destroy();
             }
         }, delay);
         this.uiNode.getComponent("UIControl").restartGameBtn.active = true;
@@ -398,7 +416,7 @@ cc.Class({
         var count = 0;
         var temp = score;
         while (temp >= 1) {
-            temp /= 10
+            temp /= 10;
             count++;
         }
 

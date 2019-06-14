@@ -268,7 +268,7 @@ cc.Class({
             delay = 0;
         } else {
             //防止在结束游戏页面出现readygo
-            if (this.gameStarted) {
+            if (Global.gameStarted) {
                 readyGo = cc.instantiate(this.readyGo);
                 readyGo.parent = this.node;
             }
@@ -288,7 +288,7 @@ cc.Class({
                     halos[i].getComponent(cc.Animation).resume();
                 }
             }
-            if (!rightAway && this.gameStarted) {
+            if (!rightAway && Global.gameStarted) {
                 readyGo.destroy();
             }
         }, delay);

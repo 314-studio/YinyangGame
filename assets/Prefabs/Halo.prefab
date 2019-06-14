@@ -139,7 +139,7 @@
     "drips": {
       "__uuid__": "8dd26e53-fd78-429b-9642-f488ac69e96c"
     },
-    "tempoDetectOffect": 40,
+    "tempoDetectOffect": 120,
     "force": 250,
     "_id": ""
   },

@@ -233,16 +233,17 @@ cc.Class({
             this.hitPosition = this.progressBarScript.getNextBlockPosition();
             this.blockCount = this.progressBarScript.increaseBlockCount();
             this.animation.off('finished',this.onFinished,this);
+
+            this.progressBarScript.gainEnergy(true);
         }
         else{
             //未击中时的处理
             var position = this.progressBarScript.getNextBlockPosition();
             this.blockCount = this.progressBarScript.increaseBlockCount();
             this.progressBarScript.hit(false, this.isWhite, position, this.blockCount);
-            this.progressBarScript.checkFail();
             this.animation.off('finished',this.onFinished,this);
 
-            
+            this.progressBarScript.gainEnergy(false);
         }
         //combo
         this.game.calComboByHit(hitted);

@@ -129,7 +129,12 @@ cc.Class({
     },
 
     addPathPoint (point) {
-        this.pathPoints.push(point);
+        //添加路径点的方式，有可能出bug？
+        if (this.pathPoints.length == 2) {
+            this.pathPoints[1] = point;
+        } else {
+            this.pathPoints.push(point);
+        }
     },
 
     //

@@ -32,13 +32,33 @@ cc.Class({
             type: cc.Prefab
         },
 
+        energyBar: {
+            default: null,
+            type: cc.ProgressBar
+        },
+
         topMargin: 20,
-        maxFailPercent: 0.2,
+        energyChargeRate: 0.05,
+        energyFadeRate: 0.2
     },
 
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {},
+    onLoad () {
+        let winSize = cc.winSize;
+        let energyBarWidth = winSize.width / 2;
+        let energyBarHeight = 2;
+
+        this.energyBar.node.width = energyBarWidth + 2;
+        this.energyBar.node.height = energyBarHeight + 2;
+        this.energyBar.node.setPosition(cc.v2(0, - winSize.height / 2 + 10));
+
+        let bar = this.energyBar.node.getChildByName("bar");
+        bar.width = energyBarWidth;
+        bar.height = energyBarHeight;
+
+        this.energyBar.node.active = false;
+    },
 
     start () {
         this.PROGRESSBAR_CENTER_OFFSET = 1;
@@ -48,6 +68,7 @@ cc.Class({
 
     bulidProgressBar (blockAmount) {
         this.gameEnded = false;
+        this.energyBar.node.active = true;
 
         var winSize = cc.winSize;
         this.progressBarWidth = winSize.width;
@@ -75,20 +96,35 @@ cc.Class({
         return this.blockCount;
     },
 
-    checkFail () {
-        if (!this.gameEnded) {
-            this.failCount++;
-            if (this.failCount / this.blockAmount > this.maxFailPercent) {
-                this.game.endGame();
-                this.gameEnded = true;
+    gainEnergy (gained) {
+        if (gained) {
+            if (this.energyBar.progress < 1) {
+                this.energyBar.progress += this.energyChargeRate;
+            } else {
+                this.energyBar.progress = 1;
+            }
+        } else {
+            if (this.energyBar.progress > 0) {
+                this.energyBar.progress -= this.energyFadeRate;
+            } else {
+                this.energyBar.progress = 0;
+                this.endGame();
             }
         }
+    },
+
+    endGame () {
+        this.game.endGame();
+        this.gameEnded = true;
     },
 
     clear () {
         this.node.removeAllChildren();
         this.container.destroy();
         this.failCount = 0;
+
+        this.energyBar.progress = 0;
+        this.energyBar.node.active = false;
     },
 
     //击中后在进度条上生成进度块

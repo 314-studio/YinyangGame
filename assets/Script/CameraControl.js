@@ -41,8 +41,8 @@ cc.Class({
 
     shake () {
         cc.tween(this.camera)
-            .to(0.05, {zoomRatio: this.maxZoomRatio + 0.2})
-            .to(0.05, {zoomRatio: this.maxZoomRatio})
+            .to(0.1, {zoomRatio: this.maxZoomRatio + 0.2})
+            .to(0.1, {zoomRatio: this.maxZoomRatio})
             .start();
     },
 

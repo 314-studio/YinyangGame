@@ -85,6 +85,9 @@ cc.Class({
     onLoad () {
         //点击来操作小球时不需要检测碰撞
         var manager = cc.director.getCollisionManager();
+        //开启物理引擎，并设置重力为0
+        //cc.director.getPhysicsManager().enabled = true;
+        //cc.director.getPhysicsManager().gravity = cc.v2();
         manager.enabled = true;
 
         //初始化触摸节点
@@ -300,6 +303,7 @@ cc.Class({
         this.deltaTime = 0;
         this.tempoCount = 0;
         this.beginGenerateHalo = false;
+        this.tempo = null;
     },
 
     generateHalo (dt) {

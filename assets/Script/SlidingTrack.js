@@ -13,11 +13,18 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
+        leader: {
+            type: cc.Node,
+            default: null
+        },
+
         openingAnimRadius: 10,
         openingAnimSmoothness: 1,
         openingAnimDuration: 0.5,
 
         enableClickToMove: true,
+
+        lagSeconds: 1,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -32,6 +39,7 @@ cc.Class({
 
         this.openingAnimPlaying = false;
         this.touchMove = false;
+        this.sliding = false;
 
         //this.smoothness = 1;
     },
@@ -50,54 +58,83 @@ cc.Class({
         //用于储存阴阳移动的路径点
         this.pathPoints = new Array();
 
+        //新的阴阳移动
+        this.target = cc.v2();
+        //this.haloEmergeAnimDuration = 0;
+
         this.initActions();
 
         this.playOpeningAnimation(true);
 
         // if (this.enableClickToMove) {
-            
+
         // }
         this.slidingAngle = 0;
         //this.currentAngle = 0;
+        this.winSize = cc.winSize;
+        this.haloSpawnMargin = 40;
+        
+        //用于跟随
+        this.leaderControl = this.leader.getComponent('Leader');
+        this.MAX_FPS = 60;
+        this.time = 0;
+
+        this.initBuffer();
+    },
+
+    initBuffer () {
+        this.leader.setPosition(cc.v2(Global.radius, 0));
+        var bufferLength = Math.ceil(this.lagSeconds * this.MAX_FPS);
+        this._positionBuffer = new Array(bufferLength);
+        this._timeBuffer = new Array(bufferLength);
+
+        this._positionBuffer[0] = this._positionBuffer[1] = this.leader.getPosition();
+        this._timeBuffer[0] = this._timeBuffer[1] = this.time;
+        this._oldestIndex = 0;
+        this._newestIndex = 1;
     },
 
     update (dt) {
         if (Global.gameStarted) {
-            if (this.sliding) {
-                if (!this.touchMove) {
-                    var pos = this.posOnCircleFormAngle(this.slidingAngle);
-                    this.yangEye.setPosition(pos);
-                    this.yinEye.setPosition(cc.v2(-pos.x, -pos.y));
-                } else {
-                    //this.sliding = false;
-                }
-            } else {
-                if (this.enableClickToMove) {
-                    if (this.pathPoints.length > 0) {
-                        this.slideTo(this.pathPoints[0]);
-                        this.pathPoints.splice(0, 1);
-                        this.slidingAngle = this.positionToAngle(this.yangEye.getPosition());
-                    }
-                }
-            }
+            this.time += dt;
+            // if (this.sliding) {
+            //     //if (!this.touchMove) {
+            //         var pos = this.posOnCircleFormAngle(this.slidingAngle);
+            //         this.yangEye.setPosition(pos);
+            //         this.yinEye.setPosition(cc.v2(-pos.x, -pos.y));
+            //         cc.log(this.slidingAngle, pos);
+            //     //} else {
+            //         //this.sliding = false;
+            //     //}
+            // }
+            // } else {
+            //     if (this.enableClickToMove) {
+            //         if (this.pathPoints.length > 0) {
+            //             this.slideTo(this.pathPoints[0]);
+            //             this.pathPoints.splice(0, 1);
+            //             this.slidingAngle = this.positionToAngle(this.yangEye.getPosition());
+            //         }
+            //     }
+            // }
+            
 
             //控制小球不能超过自己的区域
-            if (this.touchMove) {
-                if (this.yinEye.getPosition().x > 0) {
-                    if (this.yinEye.getPosition().y > 0) {
-                        this.yinEye.setPosition(0, Global.radius);
-                    } else {
-                        this.yinEye.setPosition(0, -Global.radius);
-                    }
-                }
-                if (this.yangEye.getPosition().x < 0) {
-                    if (this.yangEye.getPosition().y > 0) {
-                        this.yangEye.setPosition(0, Global.radius);
-                    } else {
-                        this.yangEye.setPosition(0, -Global.radius);
-                    }
-                }
-            }
+            // if (this.touchMove) {
+            //     if (this.yinEye.getPosition().x > 0) {
+            //         if (this.yinEye.getPosition().y > 0) {
+            //             this.yinEye.setPosition(0, Global.radius);
+            //         } else {
+            //             this.yinEye.setPosition(0, -Global.radius);
+            //         }
+            //     }
+            //     if (this.yangEye.getPosition().x < 0) {
+            //         if (this.yangEye.getPosition().y > 0) {
+            //             this.yangEye.setPosition(0, Global.radius);
+            //         } else {
+            //             this.yangEye.setPosition(0, -Global.radius);
+            //         }
+            //     }
+            // }
         }
 
 
@@ -112,6 +149,45 @@ cc.Class({
         }
     },
 
+
+    lateUpdate (dt) {
+        if (Global.gameStarted) {
+            if (this.leaderControl.moving) {
+                // Insert newest position into our cache.
+                // If the cache is full, overwrite the latest sample.
+                var newIndex = (this._newestIndex + 1) % this._positionBuffer.length;
+                if (newIndex != this._oldestIndex) {
+                    this._newestIndex = newIndex;
+                }
+
+                this._positionBuffer[this._newestIndex] = this.leader.getPosition();
+                this._timeBuffer[this._newestIndex] = this.time;
+
+                // Skip ahead in the buffer to the segment containing our target time.
+                var targetTime = this.time - this.lagSeconds;
+                var nextIndex;
+                while (this._timeBuffer[nextIndex = (this._oldestIndex + 1) % this._timeBuffer.length] < targetTime) {
+                    this._oldestIndex = nextIndex;
+                }
+
+                // Interpolate between the two samples on either side of our target time.
+                var span = this._timeBuffer[nextIndex] - this._timeBuffer[this._oldestIndex];
+                var progress = 0;
+                if (span > 0) {
+                    progress = (targetTime - this._timeBuffer[this._oldestIndex]) / span;
+                }
+
+                this.yangEye.setPosition(this._positionBuffer[this._oldestIndex].lerp(this._positionBuffer[nextIndex], progress));
+                this.yinEye.setPosition(cc.v2(-this.yangEye.x, -this.yangEye.y));
+            } else if (this.sliding) {
+                var pos = this.posOnCircleFormAngle(this.slidingAngle);
+                this.yangEye.setPosition(pos);
+                this.yinEye.setPosition(cc.v2(-pos.x, -pos.y));
+                cc.log(this.slidingAngle, pos);
+            }
+        }
+    },
+
     moveEyeByDelta (isYang, delta) {
         var angle = Math.atan(delta.y / Global.radius);
         if (isYang) {
@@ -123,9 +199,22 @@ cc.Class({
         }
     },
 
+    //动画结束后将阴阳小球移动到能形成阴阳的地方
     moveEyetoYinyang () {
         this.touchMove = false;
-        this.slideTo(cc.v2(0, Global.radius));
+        this.leaderControl.cutsceneAnimPlaying = true;
+        this.resetYinyangPosition();
+        this.scheduleOnce(function() {
+            //todo: 随机决定小球形成阴阳的放向
+            // let a = Math.random() * 2;
+            // let pos = cc.v2();
+            // if (a < 1) {
+            //     pos = cc.v2(0, Global.radius);
+            // } else {
+            //     pos = cc.v2(0, -Global.radius);
+            // }
+            this.slideTo(cc.v2(0, Global.radius));
+        }, 1);
     },
 
     addPathPoint (point) {
@@ -142,7 +231,7 @@ cc.Class({
         this.sliding = true;
         var angle = this.positionToAngle(point);
 
-        var pos = this.circlePosForAngle(cc.v2(0, 0), angle, Global.radius);
+        //var pos = this.circlePosForAngle(cc.v2(0, 0), angle, Global.radius);
         // this.ctx.clear();
         // this.ctx.circle(pos.x, pos.y, 10);
         // this.ctx.fill();
@@ -170,6 +259,8 @@ cc.Class({
     },
 
     resetYinyangPosition () {
+        this.leaderControl.reset();
+
         cc.tween(this.yangEye)
             .to(1, {position: cc.v2(Global.radius, 0)}, {easing: 'quadInOut'})
             .start();
@@ -203,9 +294,18 @@ cc.Class({
         this.ctx.stroke();
     },
 
-    generateRamdomHaloPositon (radius) {
-        var angle = Math.random() * 2 * this.maxAngle - this.maxAngle;
-        return this.circlePosForAngle(new cc.Vec2(0, 0), angle, radius);
+    getLeaderPosition () {
+        return this.leader.getPosition();
+    },
+
+    generateRamdomHaloPositon () {
+        //var angle = Math.random() * 2 * this.maxAngle - this.maxAngle;
+        //return this.circlePosForAngle(new cc.Vec2(0, 0), angle, radius);
+        //只随机生成右边的位置，game里处理到底是左边还是右边
+        var x = Math.random() * (this.winSize.width / 2 - this.haloSpawnMargin * 2) + this.haloSpawnMargin;
+        var y = Math.random() * (this.winSize.height / 2 - this.haloSpawnMargin * 2) + this.haloSpawnMargin;
+        //cc.log(x, y);
+        return cc.v2(x, y);
     },
 
     circlePosForAngle (origin, angle, radius) {

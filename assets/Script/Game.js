@@ -60,6 +60,11 @@ cc.Class({
             type: cc.Node
         },
 
+        gameEndView: {
+            default: null,
+            type: cc.Node
+        },
+
         bagua: {
             default: null,
             type: cc.Prefab
@@ -86,8 +91,8 @@ cc.Class({
         //点击来操作小球时不需要检测碰撞
         var manager = cc.director.getCollisionManager();
         //开启物理引擎，并设置重力为0
-        //cc.director.getPhysicsManager().enabled = true;
-        //cc.director.getPhysicsManager().gravity = cc.v2();
+        cc.director.getPhysicsManager().enabled = true;
+        cc.director.getPhysicsManager().gravity = cc.v2();
         manager.enabled = true;
 
         //初始化触摸节点
@@ -139,15 +144,20 @@ cc.Class({
         //游戏没开始时，UI不显示
         this.uiNode.getComponent("UIControl").game = this;
         this.uiNode.active = false;
+        
+        this.gameEndView.width = cc.winSize.width;
+        this.gameEndView.height = cc.winSize.height;
+        this.gameEndView.active = false;
 
         //this.gameStarted = false;
         //touching用来做暂停效果
         this.touching = false;
         cc.log(cc.sys.dump());
         this.deltaTime = 0;
-        this.haloEmergeAnimDuration = 
+        this.haloEmergeAnimDuration =
             this.halo.data.getComponent(cc.Animation).defaultClip.duration - 0.4;
-
+        this.slidingTrackScript.haloEmergeAnimDuration = this.haloEmergeAnimDuration;
+        this.slidingTrackScript.lagSeconds = this.haloEmergeAnimDuration + 0.2;
         //debug
         // this.scheduleOnce(function() {
         //     this.playCutsceneAnim();
@@ -159,6 +169,7 @@ cc.Class({
         this.beginTempoCount = false;
 
         this.vibrationEnabled = true;
+        this.enableCameraShake = true;
     },
 
     update (dt) {
@@ -194,7 +205,7 @@ cc.Class({
         var musicName = "";
         var singerLabel = this.uiNode.getChildByName("Singer").getComponent(cc.Label);
 
-        
+
         if (this.levelCount < songs.length) {
             musicName = songs[this.levelCount].name;
             singerLabel.string = songs[this.levelCount].author;
@@ -217,9 +228,12 @@ cc.Class({
     endGame () {
         //播放结束动画与显示结束后的UI
         Global.gameStarted = false;
+        this.gameEndView.active = true;
+        this.touchPad.active = false;
         //this.yinyangFluid.getComponent("YinyangFluid").gameStarted = false;
         this.slidingTrackScript.resetYinyangPosition();
         this.slidingTrackScript.playOpeningAnimation(true);
+        this.slidingTrackScript.initBuffer();
         cc.audioEngine.stop(this.audioID);
         this.stopGenerateHalo();
 
@@ -227,7 +241,8 @@ cc.Class({
         this.wechatRanking.getComponent("RankingView").showRanking(this.score);
         this.levelCount = 0;
 
-        this.uiNode.getComponent("UIControl").pauseBtn.active = false;
+        var uiControl = this.uiNode.getComponent("UIControl");
+        uiControl.pauseBtn.active = false;
     },
 
     restartGame () {
@@ -240,6 +255,7 @@ cc.Class({
         this.progressBar.getComponent("ProgressBar").clear();
         this.uiNode.active = false;
         this.loadNextLevelSong();
+        this.touchPad.active = true;
 
         //重置得分
         this.score = 0;
@@ -276,9 +292,13 @@ cc.Class({
                 readyGo.parent = this.node;
             }
         }
-        
+
         //cc.log(readyGo);
-        this.uiNode.getChildByName("Pause").active = true;
+        if (Global.gameStarted) {
+            this.uiNode.getChildByName("Pause").active = true;
+        } else {
+            
+        }
         this.gamePauseView.active = false;
         var halos = this.touchPad.getComponent("ClickPad").halos;
         this.scheduleOnce(function() {
@@ -311,12 +331,13 @@ cc.Class({
         if (this.beginGenerateHalo) {
             var playedTime = cc.audioEngine.getCurrentTime(this.audioID);
             //this.deltaTime += dt;
-            if (playedTime >= this.tempo[this.tempoCount] - 
+            if (playedTime >= this.tempo[this.tempoCount] -
                     this.haloEmergeAnimDuration + this.musicOffset) {
                 //todo: 更改clickpad
                 var touchPadControl = this.touchPad.getComponent("ClickPad"); //判定点击击中光环
 
-                let pos = this.slidingTrackScript.generateRamdomHaloPositon(Global.radius);
+                //let pos = this.slidingTrackScript.generateRamdomHaloPositon();
+                let pos = this.slidingTrackScript.getLeaderPosition();
                 let halo = cc.instantiate(this.halo);
                 halo.parent = this.slidingTrack;
                 touchPadControl.addHalo(halo);
@@ -330,10 +351,11 @@ cc.Class({
                     haloScript.play(true);
                     this.right = false;
                 } else {
-                    halo.setPosition(-pos.x, pos.y);
+                    halo.setPosition(-pos.x, -pos.y);
                     haloScript.play(false);
                     this.right = true;
                 }
+                this.slidingTrackScript.target = halo.getPosition();
                 this.tempoCount++;
             }
 
@@ -366,7 +388,7 @@ cc.Class({
         this.scheduleOnce(function() {
             bagua = cc.instantiate(this.bagua);
             bagua.parent = this.node;
-        }, 1);
+        }, 5);
         this.scheduleOnce(function() {
             this.slidingTrackScript.moveEyetoYinyang();
             this.cameraScript.playCutsceneAnim(true);
@@ -382,18 +404,21 @@ cc.Class({
             .repeat(3)
             .start();
             this.deltaTime = 0;
-        }, 4);
+        }, 8);
         this.scheduleOnce(function() {
             //bagua.getComponent(cc.Animation).defaultClip.wrapMode = cc.WrapMode.Reverse;
+            this.slidingTrackScript.resetYinyangPosition();
             bagua.getComponent(cc.Animation).play("BaGua_reverse");
-        }, 15);
+        }, 19);
         this.scheduleOnce(function() {
             //todo: 音乐结束的时间问题
             this.levelEnded = true;
             this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = false;
-
+            this.slidingTrackScript.leaderControl.cutsceneAnimPlaying = false;
+            this.slidingTrackScript.initBuffer();
+            this.slidingTrackScript.slidingAngle = 0;
             this.touchPad.active = true;
-        }, 16);
+        }, 20);
     },
 
     gainScore (score) {
@@ -408,7 +433,9 @@ cc.Class({
             }
         }
 
-        this.cameraScript.shake();
+        if (this.enableCameraShake) {
+            this.cameraScript.shake();
+        }
 
         if (this.magnification > 0) {
             this.score += score * this.magnification;

@@ -57,5 +57,13 @@ cc.Class({
         
     },
 
+    onToggleCameraShake: function (toggle) {
+        if (toggle.isChecked) {
+            this.game.enableCameraShake = true;
+        } else {
+            this.game.enableCameraShake = false;
+        }
+    },
+
     // update (dt) {},
 });

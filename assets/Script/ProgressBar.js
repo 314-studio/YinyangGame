@@ -123,7 +123,7 @@ cc.Class({
         this.container.destroy();
         this.failCount = 0;
 
-        this.energyBar.progress = 1;
+        this.energyBar.progress = 0.5;
         this.energyBar.node.active = false;
     },
 

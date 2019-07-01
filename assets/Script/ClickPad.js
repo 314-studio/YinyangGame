@@ -107,7 +107,7 @@ cc.Class({
         var winSize = cc.winSize;
         var x = location.x - winSize.width / 2;
         var y = location.y - winSize.height / 2;
-        cc.log("clicked on " + location + " x: " + x+ " y: " + y);
+        cc.log("clicked on " + location + " x: " + x + " y: " + y);
 
         //todo:播放水波纹动画
         this.createRipple(this.slidingTrack, cc.v2(x, y));
@@ -166,7 +166,7 @@ cc.Class({
             y = -y;
         }
         //然后让阴阳小球移动到这个点
-        this.slidingTrackControl.addPathPoint(cc.v2(x, y));
+        //this.slidingTrackControl.addPathPoint(cc.v2(x, y));
     },
 
     addHalo (halo) {

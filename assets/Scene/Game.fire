@@ -284,9 +284,9 @@
     },
     "_scale": {
       "__type__": "cc.Vec3",
-      "x": 1.131,
-      "y": 1.131,
-      "z": 1.131
+      "x": 1,
+      "y": 0.5,
+      "z": 1
     },
     "_quat": {
       "__type__": "cc.Quat",
@@ -996,7 +996,7 @@
       "__id__": 22
     },
     "_enabled": true,
-    "settedTime": 1.6,
+    "settedTime": 2,
     "damping": 2,
     "_id": "2aQ9DW5CpB85ROW9fvgtL7"
   },

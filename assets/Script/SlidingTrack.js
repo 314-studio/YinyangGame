@@ -25,6 +25,12 @@ cc.Class({
         enableClickToMove: true,
 
         lagSeconds: 1,
+
+        //leader
+        settedTime: 2,
+        damping: 2,
+        speed: 10,
+        transformTime: 2,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -42,6 +48,8 @@ cc.Class({
         this.sliding = false;
 
         //this.smoothness = 1;
+        this.rigidbody = this.leader.getComponent(cc.RigidBody);
+        this.leader.setPosition(cc.v2(Global.radius, 0));
     },
 
     start () {
@@ -75,11 +83,33 @@ cc.Class({
         this.haloSpawnMargin = 40;
         
         //用于跟随
-        this.leaderControl = this.leader.getComponent('Leader');
         this.MAX_FPS = 60;
+        this.FORCE_OFFSET = 1000;
         this.time = 0;
 
         this.initBuffer();
+
+        //leader
+        this.countDownBegin = false;
+        this.movedSecond = 0;
+        this.moving = false;
+        this.cutsceneAnimPlaying = false;
+        //this.remainingTimeLabel.string = "剩余时间: " + this.settedTime;
+        this.currentOrigin = cc.v2();
+
+        //cc.log(this.rigidbody.getMass());
+        this.lastRandomPos = cc.v2();
+        this.quadrant = 0;
+        //this.startMove();
+        //this.startNextRound();
+        this.deltaTime = 0;
+        this.margin = 100;
+
+        this.applyForce = false;
+        this.forceDirection = cc.v2();
+        this.applyDuration = 0.5;
+        this.appliedTime = 0;
+        this.acceleration = this.speed / this.applyDuration;
     },
 
     initBuffer () {
@@ -97,44 +127,6 @@ cc.Class({
     update (dt) {
         if (Global.gameStarted) {
             this.time += dt;
-            // if (this.sliding) {
-            //     //if (!this.touchMove) {
-            //         var pos = this.posOnCircleFormAngle(this.slidingAngle);
-            //         this.yangEye.setPosition(pos);
-            //         this.yinEye.setPosition(cc.v2(-pos.x, -pos.y));
-            //         cc.log(this.slidingAngle, pos);
-            //     //} else {
-            //         //this.sliding = false;
-            //     //}
-            // }
-            // } else {
-            //     if (this.enableClickToMove) {
-            //         if (this.pathPoints.length > 0) {
-            //             this.slideTo(this.pathPoints[0]);
-            //             this.pathPoints.splice(0, 1);
-            //             this.slidingAngle = this.positionToAngle(this.yangEye.getPosition());
-            //         }
-            //     }
-            // }
-            
-
-            //控制小球不能超过自己的区域
-            // if (this.touchMove) {
-            //     if (this.yinEye.getPosition().x > 0) {
-            //         if (this.yinEye.getPosition().y > 0) {
-            //             this.yinEye.setPosition(0, Global.radius);
-            //         } else {
-            //             this.yinEye.setPosition(0, -Global.radius);
-            //         }
-            //     }
-            //     if (this.yangEye.getPosition().x < 0) {
-            //         if (this.yangEye.getPosition().y > 0) {
-            //             this.yangEye.setPosition(0, Global.radius);
-            //         } else {
-            //             this.yangEye.setPosition(0, -Global.radius);
-            //         }
-            //     }
-            // }
         }
 
 
@@ -147,12 +139,76 @@ cc.Class({
                 this.yangEye.getPosition().y, Global.radius);
             this.ctx.stroke();
         }
+
+        //leader
+        if (Global.gameStarted && !this.cutsceneAnimPlaying) {
+            if (!this.moving) {
+                this.startMove();
+            } else {
+                let xDiff = this.leader.x - this.currentOrigin.x;
+                let yDiff = this.leader.y - this.currentOrigin.y;
+                let mo = Math.sqrt(Math.pow(xDiff, 2) + 
+                                Math.pow(yDiff, 2));
+                let unitVector = cc.v2(xDiff / mo, yDiff / mo);
+                this.rigidbody.applyForceToCenter(cc.v2(unitVector.x * this.centripetalForce, 
+                    unitVector.y * this.centripetalForce));
+                
+                // this.ctx.clear();
+                // this.ctx.circle(this.leader.x, this.leader.y, 10);
+                // this.ctx.circle(this.currentOrigin.x, this.currentOrigin.y, 10);
+                // this.ctx.fill();
+                // this.ctx.moveTo(this.leader.x, this.leader.y);
+                // this.ctx.lineTo(unitVector.x * this.centripetalForce, unitVector.y * this.centripetalForce);
+                // this.ctx.stroke();
+
+                let halfLeaderHeight = this.yangEye.height / 2 * this.yangEye.scale;
+                let halfLeaderWidth = this.yangEye.width / 2 * this.yangEye.scale;
+
+                //当阴阳小球撞到右边和上下的墙壁时，调转放心
+                if (this.leader.y > this.winSize.height / 2 - halfLeaderHeight) {
+                    this.rigidbody.applyForceToCenter(cc.v2(0, -this.FORCE_OFFSET));
+                } else if (this.leader.y < -this.winSize.height / 2 + halfLeaderHeight) {
+                        // let speed = this.rigidbody.linearVelocity;
+                        // this.rigidbody.linearVelocity = cc.v2(speed.x, -speed.y);
+                        this.rigidbody.applyForceToCenter(cc.v2(0, this.FORCE_OFFSET));
+                        //this.startNextRound();
+                } else if (this.leader.x > this.winSize.width / 2 - halfLeaderWidth) {
+                    // let speed = this.rigidbody.linearVelocity;
+                    // this.rigidbody.linearVelocity = cc.v2(-speed.x, speed.y);
+                    this.rigidbody.applyForceToCenter(cc.v2(-this.FORCE_OFFSET, 0));
+                }
+                //当阴阳小球在中间相遇时
+                if (this.leader.x * 2 < halfLeaderWidth * 2 + 30) {
+                    this.rigidbody.applyForceToCenter(cc.v2(this.FORCE_OFFSET, 0));
+                    cc.log("太近了");
+                    // let speed = this.rigidbody.linearVelocity;
+                    // this.rigidbody.linearVelocity = cc.v2(-speed.x, speed.y);
+                }
+                if (this.deltaTime < this.transformTime) {
+                    this.deltaTime += dt;
+                } else {
+                    this.deltaTime = 0;
+                    this.startNextRound();
+                }
+
+                if (this.applyForce) {
+                    this.appliedTime += dt;
+
+                    this.rigidbody.applyForceToCenter(cc.v2(this.acceleration * this.forceDirection.x, 
+                        this.acceleration * this.forceDirection.y));
+                    if (this.appliedTime >= this.applyDuration) {
+                        this.applyForce = false;
+                        this.appliedTime = 0;
+                    }
+                }
+            }
+        }
     },
 
 
     lateUpdate (dt) {
         if (Global.gameStarted) {
-            if (this.leaderControl.moving) {
+            if (this.moving) {
                 // Insert newest position into our cache.
                 // If the cache is full, overwrite the latest sample.
                 var newIndex = (this._newestIndex + 1) % this._positionBuffer.length;
@@ -202,7 +258,7 @@ cc.Class({
     //动画结束后将阴阳小球移动到能形成阴阳的地方
     moveEyetoYinyang () {
         this.touchMove = false;
-        this.leaderControl.cutsceneAnimPlaying = true;
+        this.cutsceneAnimPlaying = true;
         this.resetYinyangPosition();
         this.scheduleOnce(function() {
             //todo: 随机决定小球形成阴阳的放向
@@ -259,7 +315,7 @@ cc.Class({
     },
 
     resetYinyangPosition () {
-        this.leaderControl.reset();
+        this.reset();
 
         cc.tween(this.yangEye)
             .to(1, {position: cc.v2(Global.radius, 0)}, {easing: 'quadInOut'})
@@ -335,5 +391,101 @@ cc.Class({
                     .easing(cc.easeSineInOut())
             )
         );
+    },
+
+    //leader methods
+    startMove () {
+        //this.moveLeaderTo(this.getRandomLeaderTarget());
+        this.startNextRound();
+        this.moving = true;
+    },
+
+    reset () {
+        this.leader.setPosition(cc.v2(Global.radius, 0));
+        this.rigidbody.linearVelocity = cc.v2();
+        this.countDownBegin = false;
+        this.movedSecond = 0;
+        this.f = 0;
+        this.moving = false;
+    },
+
+    startNextRound () {
+        this.currentOrigin = this.getRandomLeaderTarget();
+        let diffVector = cc.v2(this.leader.x - this.currentOrigin.x, this.leader.y - this.currentOrigin.y);
+        let b = Math.sqrt(1 / (1 + Math.pow(diffVector.y, 2) / Math.pow(diffVector.x, 2)));
+        let a = - diffVector.y * b / diffVector.x;
+
+        let r = this.currentOrigin.x - cc.winSize.width / 2;
+        let t = this.currentOrigin.y - cc.winSize.height / 2;
+        if (r > t) {
+            r = t;
+        }
+
+        //a, b 是垂直与diffVector的 单位向量 (a, b)
+        this.rigidbody.linearVelocity = cc.v2(this.speed * a, this.speed * b);
+        //this.rigidbody.applyLinearImpulse(cc.v2(this.speed * a, this.speed * b), cc.v2(0, 0));
+        // this.forceDirection = cc.v2(a, b);
+        // this.applyForce = true;
+        //centripetaForce 是向心力
+        this.centripetalForce = this.rigidbody.getMass() * Math.pow(this.speed, 2) / r;
+        cc.log(this.centripetalForce);
+    },
+
+    moveLeaderTo (position) {
+        var x = position.x;
+        var y = position.y;
+
+        this.target = cc.v2(x, y);
+        let xOffset = x - this.leader.x;
+        let yOffset = y - this.leader.y;
+        // this.startAngle = Math.atan(yOffset / xOffset);
+        // this.startDistance = Math.sqrt(Math.pow(xOffset, 2) + Math.pow(yOffset, 2));
+        this.countDownBegin = true;
+
+        //计算小球通过点击处需要的力
+        let xf = xOffset / Math.pow(this.settedTime, 2) * this.rigidbody.getMass() * 2;
+        let yf = yOffset / Math.pow(this.settedTime, 2) * this.rigidbody.getMass() * 2;
+
+        //如果有初始速度的话
+        if (this.rigidbody.linearVelocity != cc.v2()) {
+            xf -= 2 * this.rigidbody.linearVelocity.x / this.settedTime * this.rigidbody.getMass();
+            yf -= 2 * this.rigidbody.linearVelocity.y / this.settedTime * this.rigidbody.getMass();
+        }
+
+        this.rigidbody.linearDamping = 0;
+        this.f = cc.v2(xf, yf);
+    },
+
+    getRandomLeaderTarget () {
+        let quarterWidth = cc.winSize.width / 4;
+        let halfHeight = cc.winSize.height / 2;
+
+        let boxWidth = quarterWidth / 4;
+        let boxHeight = halfHeight / 4;
+        // let xDiff = this.node.x - quarterWidth;
+        // let yDiff = this.node.y - halfHeight;
+
+        let target = cc.v2(Math.random() * boxWidth, Math.random() * boxHeight);
+
+        let nextQuadrant = 0;
+        while (nextQuadrant == 0 || nextQuadrant == this.quadrant) {
+            nextQuadrant = Math.ceil(Math.random() * 4);
+        }
+        this.quadrant = nextQuadrant;
+        cc.log(this.quadrant);
+
+        if (nextQuadrant == 1) {
+            target.x += quarterWidth - quarterWidth / 4;
+        } else if (nextQuadrant == 2) {
+            target.x += quarterWidth;
+        } else if (nextQuadrant == 3) {
+            target.x += quarterWidth - quarterWidth / 4;
+            target.y = -target.y;
+        } else if (nextQuadrant == 4) {
+            target.x += quarterWidth;
+            target.y = -target.y;
+        }
+        cc.log(target);
+        return target;
     },
 });

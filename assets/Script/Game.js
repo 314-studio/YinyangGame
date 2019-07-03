@@ -388,7 +388,7 @@ cc.Class({
         this.scheduleOnce(function() {
             bagua = cc.instantiate(this.bagua);
             bagua.parent = this.node;
-        }, 5);
+        }, 3);
         this.scheduleOnce(function() {
             this.slidingTrackScript.moveEyetoYinyang();
             this.cameraScript.playCutsceneAnim(true);
@@ -404,21 +404,21 @@ cc.Class({
             .repeat(3)
             .start();
             this.deltaTime = 0;
-        }, 8);
+        }, 6);
         this.scheduleOnce(function() {
             //bagua.getComponent(cc.Animation).defaultClip.wrapMode = cc.WrapMode.Reverse;
             this.slidingTrackScript.resetYinyangPosition();
             bagua.getComponent(cc.Animation).play("BaGua_reverse");
-        }, 19);
+        }, 17);
         this.scheduleOnce(function() {
             //todo: 音乐结束的时间问题
             this.levelEnded = true;
             this.yinyangFluid.getComponent("YinyangFluid").cutsceneAnimPlaying = false;
-            this.slidingTrackScript.leaderControl.cutsceneAnimPlaying = false;
+            this.slidingTrackScript.cutsceneAnimPlaying = false;
             this.slidingTrackScript.initBuffer();
             this.slidingTrackScript.slidingAngle = 0;
             this.touchPad.active = true;
-        }, 20);
+        }, 18);
     },
 
     gainScore (score) {

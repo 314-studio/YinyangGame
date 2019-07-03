@@ -15,6 +15,7 @@ cc.Class({
         //remainingTimeLabel: cc.Label,
         settedTime: 2,
         damping: 2,
+        speed: 10
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -22,59 +23,43 @@ cc.Class({
     onLoad () {
         this.rigidbody = this.node.getComponent(cc.RigidBody);
         this.node.setPosition(cc.v2(Global.radius, 0));
+
+        this.rtx = this.node.getComponent(cc.Graphics);
     },
 
     start () {
-        this.countDownBegin = false;
-        this.movedSecond = 0;
-        this.moving = true;
-        this.cutsceneAnimPlaying = false;
-        //this.remainingTimeLabel.string = "剩余时间: " + this.settedTime;
+        // this.countDownBegin = false;
+        // this.movedSecond = 0;
+        // this.moving = true;
+        // this.cutsceneAnimPlaying = false;
+        // //this.remainingTimeLabel.string = "剩余时间: " + this.settedTime;
+        // this.currentOrigin = cc.v2();
 
-        cc.log(this.rigidbody.getMass());
-        this.lastRandomPos = cc.v2();
-        this.quadrant = 0;
-        this.startMove();
+        // cc.log(this.rigidbody.getMass());
+        // this.lastRandomPos = cc.v2();
+        // this.quadrant = 0;
+        // this.startMove();
+        // this.startNextRound();
     },
 
     update (dt) {
-        if (Global.gameStarted && !this.cutsceneAnimPlaying) {
-            if (!this.moving) {
-                this.startMove();
-            } else {
-                if (this.countDownBegin) {
-                    this.movedSecond += dt;
-
-                    //处理小球移动
-                    this.rigidbody.applyForceToCenter(this.f);
-
-                    if (this.movedSecond >= this.settedTime) {
-                        this.countDownBegin = false;
-                        this.movedSecond = 0;
-
-                        this.scheduleOnce(function() {
-                            this.moveLeaderTo(this.getRandomLeaderTarget());
-                        }, 0.3);
-                    }
-                    //this.remainingTimeLabel.string = "剩余时间: " + (this.settedTime - this.movedSecond).toFixed(2);
-                } else if (this.rigidbody.linearVelocity.x != 0 && this.rigidbody.linearVelocity.y != 0) {
-                    //let coef = this.rigidbody.linearVelocity.x / this.rigidbody.linearVelocity.y;
-                    this.rigidbody.linearDamping = this.damping;
-                }
-            }
-        }
-
-        //需要重置node的位置防止在高速撞击时重复变换速度
-        //碰撞后速度发生变化，导致不能经过控制点
-        // if (this.node.x < -cc.winSize.width / 2 + this.node.width / 2 * this.node.scale ||
-        //     this.node.x > cc.winSize.width / 2 - this.node.width / 2 * this.node.scale) {
-        //     this.rigidbody.linearVelocity = cc.v2(-this.rigidbody.linearVelocity.x,
-        //         this.rigidbody.linearVelocity.y);
-        //     //this.node.x = -cc.winSize.width / 2 + this.node.width / 2 * this.node.scale;
-        // } else if (this.node.y > cc.winSize.height / 2 - this.node.height / 2 * this.node.scale ||
-        //     this.node.y < -cc.winSize.height / 2 + this.node.height / 2 * this.node.scale) {
-        //     this.rigidbody.linearVelocity = cc.v2(this.rigidbody.linearVelocity.x,
-        //         -this.rigidbody.linearVelocity.y);
+        // if (Global.gameStarted && !this.cutsceneAnimPlaying) {
+        //     if (!this.moving) {
+        //         this.startMove();
+        //     } else {
+        //         let xDiff = this.node.x - this.currentOrigin.x;
+        //         let yDiff = this.node.y - this.currentOrigin.y;
+        //         let mo = Math.sqrt(Math.pow(xDiff) + 
+        //                         Math.pow(yDiff));
+        //         let unitVector = cc.v2(xDiff / mo, yDiff / mo);
+        //         this.rigidbody.applyForceToCenter(cc.v2(unitVector.x * this.centripetalForce, unitVector.y * this.centripetalForce));
+                
+        //         //this.rtx.moveTo(this.node.getPosition());
+        //         this.rtx.clear();
+        //         this.rtx.circle(0, 0, 10);
+        //         this.rtx.circle(this.currentOrigin.x, this.currentOrigin.y, 10);
+        //         this.rtx.fill();
+        //     }
         // }
     },
 
@@ -90,6 +75,25 @@ cc.Class({
         this.movedSecond = 0;
         this.f = 0;
         this.moving = false;
+    },
+
+    startNextRound () {
+        this.currentOrigin = this.getRandomLeaderTarget();
+        let diffVector = cc.v2(this.node.x - this.currentOrigin.x, this.node.y - this.currentOrigin.y);
+        let b = Math.sqrt(1 / (1 + Math.pow(diffVector.y, 2) / Math.pow(diffVector.x, 2)));
+        let a = - diffVector.y * b / diffVector.x;
+
+        let r = this.currentOrigin.x - cc.winSize.width / 2;
+        let t = this.currentOrigin.y - cc.winSize.height / 2;
+        if (r > t) {
+            r = t;
+        }
+
+        //a, b 是垂直与diffVector的 单位向量 (a, b)
+        this.rigidbody.linearVelocity = cc.v2(this.speed * a, this.speed * b);
+        //centripetaForce 是向心力
+        this.centripetalForce = this.rigidbody.getMass() * Math.pow(this.speed, 2) / r;
+        cc.log(this.centripetalForce);
     },
 
     moveLeaderTo (position) {

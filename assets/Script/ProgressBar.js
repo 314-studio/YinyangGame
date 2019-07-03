@@ -39,7 +39,11 @@ cc.Class({
 
         topMargin: 20,
         energyChargeRate: 0.05,
-        energyFadeRate: 0.2
+        energyFadeRate: 0.2,
+        //leader
+        settedTime: 2,
+        damping: 2,
+        speed: 10
     },
 
     // LIFE-CYCLE CALLBACKS:
